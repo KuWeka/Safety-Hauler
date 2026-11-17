@@ -1,0 +1,14 @@
+{
+  "name": "worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "types": "wrangler types",
+    "build": "wrangler types && tsc --noEmit",
+    "db:migrate:local": "wrangler d1 migrations apply safety-hauler --local"
+  },
+  "devDependencies": {
+    "wrangler": "4.163.0"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "safety-hauler",
+  "private": true,
+  "workspaces": [
+    "game",
+    "admin",
+    "worker"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "dev": "npm run dev -w game",
+    "dev:host": "npm run dev:host -w game",
+    "dev:api": "npm run dev -w worker",
+    "db:migrate:local": "npm run db:migrate:local -w worker",
+    "build": "npm run build -w game && npm run build -w admin && npm run build -w worker",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vitest": "5.1.0"
+  }
+}

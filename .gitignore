@@ -1,0 +1,22 @@
+node_modules/
+dist/
+lib/
+coverage/
+*.log
+
+# env
+.env
+.env.*
+!.env.example
+
+# Cloudflare lokal (state D1 lokal, secret lokal, tipe hasil `wrangler types`)
+.wrangler/
+.dev.vars
+.dev.vars.*
+worker-configuration.d.ts
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

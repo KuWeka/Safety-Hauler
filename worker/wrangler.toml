@@ -1,0 +1,17 @@
+name = "safety-hauler"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+
+# Game (hasil build game/) di "/", admin di "/admin" (admin ter-build ke game/dist/admin).
+# Build game DULU, baru admin, sebelum wrangler dev/deploy.
+[assets]
+directory = "../game/dist"
+binding = "ASSETS"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "safety-hauler"
+# Ganti dengan database_id dari `npx wrangler d1 create safety-hauler`. Untuk D1 lokal, placeholder ini cukup.
+database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
