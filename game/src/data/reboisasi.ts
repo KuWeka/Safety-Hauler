@@ -1,9 +1,9 @@
 // Config event Reboisasi. Angka awal Fase 1.
 export const REBOISASI = {
-  cols: 3,
-  rows: 3,
-  tileSize: 190,
-  gap: 16,
+  cols: 5,
+  rows: 5,
+  tileSize: 118,
+  gap: 10,
   /** Sama dengan REBOISASI_TIME_MS di shared/scoring.ts (dasar bonus). */
   timeLimitMs: 20_000,
 };

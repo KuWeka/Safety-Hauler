@@ -13,18 +13,20 @@ export const HAULING = {
   defaultLimitKmh: 40,
   /** Toleransi di atas batas sebelum dianggap ngebut. */
   speedToleranceKmh: 2,
-  /** Ngebut terus 1 dtk = 1 teguran; kalau masih ngebut, teguran lagi tiap 3 dtk. */
-  speedingHoldMs: 1000,
-  speedingRepeatMs: 3000,
+  /** Ngebut terus 0,7 dtk = 1 teguran; kalau masih ngebut, teguran lagi tiap 2,5 dtk. */
+  speedingHoldMs: 700,
+  speedingRepeatMs: 2500,
   /** Di jalan licin / debu, di atas kecepatan ini truk kena sekali per zona. */
-  hazardSafeKmh: 25,
+  hazardSafeKmh: 20,
   /** Di garis stop LV, kecepatan maksimum yang dianggap "berhenti". */
-  lvStopKmh: 8,
+  lvStopKmh: 5,
   /** LV mulai menyeberang saat truk sejarak ini dari garis stop, lama nyeberang. */
-  lvTriggerPx: 900,
+  lvTriggerPx: 700,
   lvCrossMs: 3500,
-  damage: { hole: 5, rock: 10, slippery: 10, dust: 5, lv: 25 },
+  damage: { hole: 8, rock: 15, slippery: 12, dust: 8, lv: 25 },
   swipeMinPx: 60,
+  /** Kabut debu menutup jalan di depan setinggi ini (px dari atas area jalan). */
+  fogHeight: 440,
 };
 
 export type CourseEvent =
@@ -39,31 +41,45 @@ export interface Course {
   events: CourseEvent[];
 }
 
-/** Bagian 1 ±35 dtk: semua jenis rintangan + 1 panggilan radio. */
+/** Bagian 1: rintangan rapat, beberapa menutup 2 lajur sekaligus, rintangan tersembunyi di debu. */
 const PART1: Course = {
-  length: 10800,
+  length: 11000,
   events: [
-    { type: 'hole', d: 1300, lane: 1 },
-    { type: 'rock', d: 2200, lane: 0 },
-    { type: 'limit', d: 3000, end: 4700, kmh: 20 },
-    { type: 'slippery', d: 3400, end: 4500 },
-    { type: 'radio', d: 5200, question: 0 },
-    { type: 'hole', d: 5900, lane: 2 },
-    { type: 'lv', d: 7300 },
-    { type: 'dust', d: 8200, end: 9400 },
-    { type: 'hole', d: 10000, lane: 0 },
-    { type: 'rock', d: 10000, lane: 2 },
+    { type: 'hole', d: 900, lane: 1 },
+    { type: 'rock', d: 1500, lane: 0 },
+    { type: 'hole', d: 1500, lane: 2 },
+    { type: 'limit', d: 2400, end: 4200, kmh: 20 },
+    { type: 'slippery', d: 2700, end: 4000 },
+    { type: 'hole', d: 3200, lane: 1 },
+    { type: 'rock', d: 3650, lane: 0 },
+    { type: 'radio', d: 4800, question: 0 },
+    { type: 'rock', d: 5400, lane: 2 },
+    { type: 'hole', d: 5400, lane: 1 },
+    { type: 'hole', d: 5900, lane: 0 },
+    { type: 'limit', d: 6300, end: 7300, kmh: 20 },
+    { type: 'lv', d: 7000 },
+    { type: 'dust', d: 7800, end: 9200 },
+    { type: 'hole', d: 8400, lane: 1 },
+    { type: 'rock', d: 8900, lane: 2 },
+    { type: 'rock', d: 9800, lane: 0 },
+    { type: 'hole', d: 9800, lane: 2 },
+    { type: 'hole', d: 10400, lane: 1 },
   ],
 };
 
-/** Bagian 2 ±15 dtk: 3 rintangan menuju area dumping. */
+/** Bagian 2: singkat tapi padat, ada LV lagi sebelum area dumping. */
 const PART2: Course = {
-  length: 4600,
+  length: 4800,
   events: [
-    { type: 'rock', d: 900, lane: 1 },
-    { type: 'limit', d: 1800, end: 3100, kmh: 20 },
-    { type: 'slippery', d: 2000, end: 3000 },
-    { type: 'hole', d: 3700, lane: 2 },
+    { type: 'rock', d: 700, lane: 1 },
+    { type: 'hole', d: 700, lane: 0 },
+    { type: 'radio', d: 1100, question: 1 },
+    { type: 'limit', d: 1500, end: 2900, kmh: 20 },
+    { type: 'slippery', d: 1700, end: 2800 },
+    { type: 'hole', d: 2200, lane: 2 },
+    { type: 'lv', d: 3400 },
+    { type: 'rock', d: 4100, lane: 2 },
+    { type: 'hole', d: 4100, lane: 1 },
   ],
 };
 
@@ -76,6 +92,12 @@ export const RADIO_QUESTIONS = [
     options: ['Klakson lalu tancap gas', 'Kurangi kecepatan dan siap berhenti', 'Pindah lajur kiri'],
     correct: 1,
     explain: 'HD wajib pelan dan siap berhenti, pastikan LV lewat dulu dengan aman.',
+  },
+  {
+    question: 'Radio: "Jalan depan licin habis hujan." Yang benar...',
+    options: ['Rem mendadak kalau mulai selip', 'Tetap 40 km/jam biar cepat sampai', 'Pelan, jaga jarak, hindari rem mendadak'],
+    correct: 2,
+    explain: 'Di jalan licin, pelan dan jaga jarak. Rem mendadak bikin unit tergelincir.',
   },
 ];
 

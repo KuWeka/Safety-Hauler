@@ -9,18 +9,20 @@ export const LOADING = {
   swingFromX: 150,
   swingToX: 690,
   swingY: 520,
-  swingSpeedPxPerSec: 520,
+  swingSpeedPxPerSec: 680,
+  /** Bucket makin cepat tiap muatan masuk (px/dtk per pass). */
+  swingSpeedUpPerPass: 60,
   /** Bar kuning di atas bak HD; zona hijau bergerak bolak-balik di dalamnya. */
   zoneCenterX: 530,
   barHalfWidth: 160,
-  greenHalfWidth: 45,
+  greenHalfWidth: 30,
   /** Kecepatan gerak zona hijau (radian/detik, gerak sinus). */
-  greenSpeed: 2.2,
+  greenSpeed: 3.2,
   /** Lama animasi tumpah dan kembali ke pit. */
   dumpMs: 350,
   returnMs: 450,
   /** Waktu habis kalau bak belum penuh. */
-  timeLimitMs: 60_000,
+  timeLimitMs: 45_000,
 };
 
 export const LOADING_TEXT = {

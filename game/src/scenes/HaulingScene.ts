@@ -105,7 +105,7 @@ export class HaulingScene extends Phaser.Scene {
       this.add.rectangle(0, 30, 96, 90, 0x5a5f66).setStrokeStyle(3, 0x1b1f24),
     ]).setDepth(10);
 
-    this.fog = this.add.rectangle(ROAD_LEFT - 60, HUD_H, ROAD_RIGHT - ROAD_LEFT + 120, 620, 0xd8c8a8, 0).setOrigin(0).setDepth(20);
+    this.fog = this.add.rectangle(ROAD_LEFT - 60, HUD_H, ROAD_RIGHT - ROAD_LEFT + 120, C.fogHeight, 0xd8c8a8, 0).setOrigin(0).setDepth(20);
 
     this.createHud();
     this.createControls();

@@ -2,23 +2,23 @@
 export const DUMPING = {
   // Bagian A: mundur. Posisi = sisi belakang truk (piksel layar, makin besar makin dekat berm).
   reverseStartY: 380,
-  reverseSpeedPxPerSec: 210,
-  stopZoneTop: 880,
+  reverseSpeedPxPerSec: 270,
+  stopZoneTop: 895,
   stopZoneBottom: 950,
   bermY: 1000,
   /** Setelah nabrak berm, truk dimundurkan balik ke sini. */
   bermBounceY: 920,
   // Bagian B: slider kecepatan dumping (nilai 0..1).
   sliderMs: 10_000,
-  zoneWidth: 0.24,
+  zoneWidth: 0.16,
   /** Zona hijau bergerak: tengah = 0.5 + a1·sin(t·w1) + a2·sin(t·w2), t dalam detik. */
-  zoneA1: 0.22,
+  zoneA1: 0.28,
   zoneW1: 1.9,
-  zoneA2: 0.07,
+  zoneA2: 0.09,
   zoneW2: 4.3,
-  /** Di luar zona terus 1,5 dtk = 1 teguran, lalu tiap 2,5 dtk. */
-  warnHoldMs: 1500,
-  warnRepeatMs: 2500,
+  /** Di luar zona terus 1 dtk = 1 teguran, lalu tiap 2 dtk. */
+  warnHoldMs: 1000,
+  warnRepeatMs: 2000,
   /** Combo: tiap 3 dtk akurat berturut-turut. */
   comboMs: 3000,
 };

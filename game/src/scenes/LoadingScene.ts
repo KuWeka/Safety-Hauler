@@ -97,7 +97,7 @@ export class LoadingScene extends Phaser.Scene {
       this.green.x = C.zoneCenterX + (C.barHalfWidth - C.greenHalfWidth) * Math.sin(t * C.greenSpeed);
     }
     if (this.state === 'swing') {
-      let x = this.bucket.x + this.dir * C.swingSpeedPxPerSec * (delta / 1000);
+      let x = this.bucket.x + this.dir * (C.swingSpeedPxPerSec + C.swingSpeedUpPerPass * this.cargo) * (delta / 1000);
       if (x >= C.swingToX) [x, this.dir] = [C.swingToX, -1];
       if (x <= C.swingFromX) [x, this.dir] = [C.swingFromX, 1];
       this.bucket.x = x;
