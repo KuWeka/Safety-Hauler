@@ -4,12 +4,12 @@ Versi awal: 17 Nov 2026 · Weka
 
 ## Ringkasan
 
-**Safety Hauler** (judul kerja) adalah web game 2.5D isometrik yang dimainkan pengunjung bazar PT Arutmin di HP masing-masing lewat scan QR. Pemain menjalani satu siklus kerja tambang (loading, hauling, reklamasi, dumping) sambil belajar aturan safety. Skornya masuk leaderboard bersama.
+**Safety Hauler** (judul kerja) adalah web game pixel art resolusi tinggi (tampak atas 3/4) yang dimainkan pengunjung bazar PT Arutmin di HP masing-masing lewat scan QR. Pemain menjalani satu siklus kerja tambang (loading, hauling, reklamasi, dumping) sambil belajar aturan safety. Skornya masuk leaderboard bersama.
 
 | Aspek | Keputusan |
 | --- | --- |
 | Platform | Web browser HP, tanpa install, portrait, kontrol sentuh |
-| Gaya visual | 2.5D isometrik, satu art style konsisten |
+| Gaya visual | Pixel art resolusi tinggi, tampak atas 3/4, satu art style konsisten (keputusan Weka, 17 Nov 2026, menggantikan 2.5D isometrik) |
 | Durasi main | 3–4 menit per sesi |
 | Target pemain | Karyawan Arutmin, kontraktor, keluarga, pengunjung umum bazar |
 | Pesan utama | Safety lebih penting dari kecepatan: bobot skor safety > produktivitas |
@@ -48,7 +48,7 @@ Antar tahap ada layar transisi 1–2 detik berisi satu "Safety Tip" singkat. Pem
 ### 2. Kustomisasi karakter
 
 - Pilihan: cowok/cewek, 3 gaya rambut, 3 warna kulit.
-- Preview karakter isometrik berputar pelan di tengah layar.
+- Preview karakter pixel art berputar pelan di tengah layar (render 8 arah).
 
 ### 3. Pakai APD
 
@@ -72,7 +72,7 @@ Antar tahap ada layar transisi 1–2 detik berisi satu "Safety Tip" singkat. Pem
 
 ### 6. Hauling bagian 1
 
-- Kamera isometrik mengikuti truk yang otomatis maju. Kontrol: geser kiri/kanan untuk pindah lajur, slider kecepatan di bawah layar (keputusan Weka, 17 Nov 2026: lebih gampang dari tombol gas dan rem).
+- Kamera tampak atas 3/4 mengikuti truk yang otomatis maju. Kontrol: geser kiri/kanan untuk pindah lajur, slider kecepatan di bawah layar (keputusan Weka, 17 Nov 2026: lebih gampang dari tombol gas dan rem).
 - HP bar unit (kondisi truk) + speedometer dengan batas kecepatan dari rambu.
 
 | Rintangan | Aksi benar | Kalau salah |
@@ -207,16 +207,18 @@ Pengawas adalah wajah game ini: galak tapi lucu, dan selalu benar soal safety. D
 
 ## Art direction & daftar asset
 
-Semua asset dibuat sebagai model 3D low-poly di Blender, lalu di-render jadi sprite isometrik dengan satu setting kamera dan lighting yang sama. Hasilnya otomatis konsisten, dan asset baru tinggal render ulang dengan setting yang sama.
+Gaya visual: **pixel art resolusi tinggi**, tampak atas 3/4. Asset dibuat dengan pipeline hybrid: model 3D low-poly di Blender, di-render kecil dengan satu setting kamera dan lighting yang sama, lalu dikunci ke palet warna tetap lewat skrip (kuantisasi + outline). Hasilnya konsisten, dan asset atau arah baru tinggal render ulang. Retouch manual di Aseprite boleh untuk wajah, ikon, dan UI.
 
 **Aturan style (dikunci dari awal)**
 
-- Kamera: orthographic, sudut isometrik 2:1, arah cahaya dari kiri-atas.
-- Bentuk: low-poly, proporsi agak chibi untuk karakter (kepala besar biar APD kelihatan jelas).
-- Warna: palet terbatas ± 16 warna. Kuning HD/excavator, oranye rompi, cokelat-hitam batubara, hijau reklamasi, biru langit pucat.
-- Outline: tebal gelap (bisa lewat shader Freestyle Blender atau efek di game).
-- UI: tombol besar dan bulat, font tebal mudah dibaca di layar kecil.
-- Ukuran: sprite di-export WebP, dikemas jadi texture atlas. Target total asset < 8 MB.
+- Kamera: orthographic, tampak atas 3/4 (miring ± 55° dari horizontal), arah cahaya dari kiri-atas. Karakter dirender 8 arah.
+- Resolusi: layar game 720×1280, resolusi art 360×640. Satu piksel art diperbesar tepat 2×2 piksel layar (nearest-neighbor, tanpa pecahan).
+- Bentuk: proporsi agak chibi untuk karakter (kepala besar biar APD kelihatan jelas).
+- Warna: palet terkunci ± 32 warna (lebih banyak dari rencana awal supaya gradasi halus). Kuning HD/excavator, oranye rompi, cokelat-hitam batubara, hijau reklamasi, biru langit pucat. Kode warna final dikunci di awal Fase 4.
+- Outline: 1 piksel art gelap, dibuat lewat skrip pasca-render supaya seragam.
+- UI dan font: tombol besar (min 48 px layar). Font piksel berlisensi bebas (OFL) yang di-host sendiri, bukan dari CDN.
+- Ukuran: sprite di-export WebP/PNG tanpa kompresi lossy yang merusak piksel, dikemas jadi texture atlas. Target total asset < 8 MB.
+- Phaser: setelah sprite masuk, aktifkan `pixelArt: true` dan skala sprite 2×. Teks tetap placeholder vektor sampai font piksel dipasang.
 
 | Kategori | Asset | Animasi / varian | Prioritas |
 | --- | --- | --- | --- |
@@ -227,14 +229,14 @@ Semua asset dibuat sebagai model 3D low-poly di Blender, lalu di-render jadi spr
 | Excavator | 1 unit | Swing bucket, gali, tumpah | MVP |
 | HD truck | 1 unit | Jalan, mundur, dump (bak naik), tergelincir | MVP |
 | Light Vehicle | 1 unit | Jalan | MVP |
-| Lingkungan | Pit, jalan hauling, dumping point, safety berm, patok jalan, rambu | Tile isometrik modular | MVP |
+| Lingkungan | Pit, jalan hauling, dumping point, safety berm, patok jalan, rambu | Tile modular tampak atas 3/4 (grid 32×32 piksel art) | MVP |
 | Rintangan | Lubang, batu, genangan, efek debu | Statis + partikel | MVP |
 | Reklamasi | Petak lahan, topsoil, bibit, pohon tumbuh | 3 tahap tumbuh | MVP |
 | Efek | Coal tumpah, partikel debu, confetti hasil | Partikel | Nice to have |
 | UI | Logo game, tombol, progress bar, HP bar, speedometer, Kartu Operator | – | MVP |
 | Audio | BGM ringan, mesin, klakson, suara teguran, sukses | – | Nice to have |
 
-Kalau modeling dari nol terlalu berat, alternatifnya: ambil model low-poly berlisensi bebas (CC0), lalu samakan material dan palet di Blender sebelum render. Yang penting semua lewat setting render yang sama.
+Kalau modeling dari nol terlalu berat, alternatifnya: ambil model low-poly berlisensi bebas (CC0), lalu samakan material dan palet di Blender sebelum render. Yang penting semua lewat setting render dan skrip palet yang sama.
 
 ## Arsitektur teknis
 
@@ -357,7 +359,7 @@ Urutannya: gameplay jalan dulu pakai kotak-kotak placeholder, baru art masuk bel
 **Fase 4 – Art & audio**
 
 - [ ] Kunci style: 1 karakter + 1 HD jadi "style reference"
-- [ ] Produksi asset sesuai daftar, render isometrik, texture atlas
+- [ ] Produksi asset sesuai daftar, render 3/4 + kuantisasi palet, texture atlas
 - [ ] Ganti placeholder dengan asset final + animasi
 - [ ] Audio
 

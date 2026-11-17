@@ -17,7 +17,7 @@ Desain lengkap ada di [`docs/GDD.md`](docs/GDD.md). Kalau ada yang bertentangan,
 | Bagian | Teknologi |
 | --- | --- |
 | Game | Phaser 3 + TypeScript + Vite |
-| Visual | 2.5D isometrik: sprite hasil render model low-poly dari Blender |
+| Visual | Pixel art resolusi tinggi, tampak atas 3/4: model low-poly Blender → render kecil → kunci ke palet ± 32 warna. Layar 720×1280, art 360×640 (skala 2×) |
 | Hosting + API | Cloudflare Workers (paket gratis): satu Worker melayani file statis game, dashboard `/admin`, dan endpoint `/api/*` |
 | Database | Cloudflare D1 (SQLite), migrasi SQL lewat Wrangler |
 | Auth | Pemain: no HP + token run sekali pakai dari server (tanpa login). Admin: password di Worker secret → token sesi di cookie HttpOnly |
@@ -47,7 +47,7 @@ game tambang/
 │   │   ├── ui/             # Komponen UI reusable (tombol, bar, dialog box)
 │   │   ├── data/           # dialog Pengawas, bank soal kuis, safety tips, config tahap
 │   │   └── main.ts
-│   └── public/assets/      # Sprite (WebP + atlas), audio
+│   └── public/assets/      # Sprite pixel art (WebP/PNG + atlas), audio
 ├── admin/                  # Dashboard admin (build jadi file statis di /admin)
 ├── worker/                 # Cloudflare Worker: API, auth admin, hitung ulang skor
 │   ├── src/index.ts
