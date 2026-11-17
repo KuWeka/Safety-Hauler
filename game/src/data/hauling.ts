@@ -5,12 +5,11 @@ export const HAULING = {
   pxPerKmh: 10,
   lanes: [200, 360, 520],
   startLane: 1,
-  /** Tanpa input, truk otomatis menuju kecepatan jelajah. */
+  /** Posisi awal slider kecepatan. Truk mengejar kecepatan slider dengan laju gas/rem di bawah. */
   cruiseKmh: 30,
   maxKmh: 60,
   gasKmhPerSec: 25,
   brakeKmhPerSec: 50,
-  coastKmhPerSec: 15,
   defaultLimitKmh: 40,
   /** Toleransi di atas batas sebelum dianggap ngebut. */
   speedToleranceKmh: 2,
@@ -82,9 +81,8 @@ export const RADIO_QUESTIONS = [
 
 export const HAULING_TEXT = {
   title: (part: number) => `Hauling – Bagian ${part}`,
-  hint: 'Geser kiri/kanan pindah lajur. Tahan GAS / REM.',
-  gas: 'GAS',
-  brake: 'REM',
+  hint: 'Geser jalan kiri/kanan untuk pindah lajur.',
+  throttle: 'Geser untuk atur kecepatan',
   speed: (kmh: number) => `${Math.round(kmh)} km/jam`,
   limit: (kmh: number) => `${kmh}`,
   hp: 'Kondisi unit',

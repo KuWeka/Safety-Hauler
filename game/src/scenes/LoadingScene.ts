@@ -25,6 +25,7 @@ export class LoadingScene extends Phaser.Scene {
   private bucket!: Phaser.GameObjects.Container;
   private coal!: Phaser.GameObjects.Rectangle;
   private arm!: Phaser.GameObjects.Graphics;
+  private green!: Phaser.GameObjects.Rectangle;
   private bakFill!: Phaser.GameObjects.Rectangle;
   private loadBar!: Bar;
   private loadText!: Phaser.GameObjects.Text;
@@ -55,8 +56,8 @@ export class LoadingScene extends Phaser.Scene {
     label(this, width / 2, 330, T.hint, 36, '#1b1f24', true);
 
     // Zona di atas bak
-    this.add.rectangle(C.zoneCenterX, 610, C.edgeHalfWidth * 2, 26, 0xf2b705).setStrokeStyle(3, 0x1b1f24);
-    this.add.rectangle(C.zoneCenterX, 610, C.greenHalfWidth * 2, 26, 0x2ecc71);
+    this.add.rectangle(C.zoneCenterX, 610, C.barHalfWidth * 2, 26, 0xf2b705).setStrokeStyle(3, 0x1b1f24);
+    this.green = this.add.rectangle(C.zoneCenterX, 610, C.greenHalfWidth * 2, 26, 0x2ecc71);
     this.add.line(0, 0, C.swingFromX, C.swingY, C.swingToX, C.swingY, 0x1b1f24, 0.25).setOrigin(0);
 
     // Pit + excavator (placeholder)
@@ -91,6 +92,10 @@ export class LoadingScene extends Phaser.Scene {
         this.finish(false);
       }
     }
+    if (this.state !== 'done') {
+      const t = this.elapsed / 1000;
+      this.green.x = C.zoneCenterX + (C.barHalfWidth - C.greenHalfWidth) * Math.sin(t * C.greenSpeed);
+    }
     if (this.state === 'swing') {
       let x = this.bucket.x + this.dir * C.swingSpeedPxPerSec * (delta / 1000);
       if (x >= C.swingToX) [x, this.dir] = [C.swingToX, -1];
@@ -103,7 +108,7 @@ export class LoadingScene extends Phaser.Scene {
 
   private dump(): void {
     this.state = 'busy';
-    const result = judgeDrop(this.bucket.x, C.zoneCenterX, C.greenHalfWidth, C.edgeHalfWidth);
+    const result = judgeDrop(this.bucket.x, this.green.x, C.greenHalfWidth, C.zoneCenterX, C.barHalfWidth);
     const hit = result !== 'miss';
     this.coal.setVisible(false);
 

@@ -72,7 +72,7 @@ Antar tahap ada layar transisi 1–2 detik berisi satu "Safety Tip" singkat. Pem
 
 ### 6. Hauling bagian 1
 
-- Kamera isometrik mengikuti truk yang otomatis maju. Kontrol: geser kiri/kanan untuk pindah lajur, tombol gas dan rem.
+- Kamera isometrik mengikuti truk yang otomatis maju. Kontrol: geser kiri/kanan untuk pindah lajur, slider kecepatan di bawah layar (keputusan Weka, 17 Nov 2026: lebih gampang dari tombol gas dan rem).
 - HP bar unit (kondisi truk) + speedometer dengan batas kecepatan dari rambu.
 
 | Rintangan | Aksi benar | Kalau salah |
@@ -122,13 +122,13 @@ Ditentukan Claude Code atas permintaan Weka (17 Nov 2026). Semua angka ada di `g
 
 | Tahap | Angka |
 | --- | --- |
-| Loading | Bucket berayun 520 px/dtk. Zona hijau ±45 px = 1 pass + bonus sempurna; zona kuning ±100 px = setengah pass; di luar = tumpah. Bak penuh di 5 pass. Batas waktu 60 dtk |
-| Hauling | 3 lajur, geser ≥ 60 px untuk pindah lajur. Kecepatan jelajah otomatis 30 km/jam, maks 60. Batas default 40, zona rambu 20. Ngebut = lewat batas +2 km/jam selama 1 dtk (teguran lagi tiap 3 dtk). HP unit 100 dibagi dua bagian |
+| Loading | Bucket berayun 520 px/dtk. Bar kuning ±160 px di atas bak; zona hijau ±45 px bergerak bolak-balik di dalam bar (gerak sinus, 2,2 rad/dtk). Hijau = 1 pass + bonus sempurna; kuning = setengah pass; di luar bar = tumpah. Bak penuh di 5 pass. Batas waktu 60 dtk |
+| Hauling | 3 lajur, geser jalan ≥ 60 px untuk pindah lajur. Kecepatan diatur slider di bawah layar (0–60 km/jam, mulai 30); truk naik 25 km/jam/dtk dan turun 50 km/jam/dtk menuju angka slider. Garis merah di slider = batas kecepatan. Batas default 40, zona rambu 20. Ngebut = lewat batas +2 km/jam selama 1 dtk (teguran lagi tiap 3 dtk). HP unit 100 dibagi dua bagian |
 | Hauling – rintangan | Lubang −5 HP, batu −10, licin −10 dan debu −5 (kalau di atas 25 km/jam, sekali per zona), LV −25 + teguran (kalau lewat garis stop di atas 8 km/jam saat LV menyeberang) |
 | Hauling – panjang | Bagian 1: 9 rintangan + 1 radio (± 35–50 dtk). Bagian 2: 3 rintangan (± 15–20 dtk) |
 | Reboisasi | 9 petak (3×3), tiap petak 2 tap (topsoil lalu bibit), 20 dtk |
 | Dumping A | Mundur 210 px/dtk, zona stop 70 px sebelum berm |
-| Dumping B | 10 dtk, zona hijau 24% lebar slider dan bergerak. Di luar zona 1,5 dtk = teguran (lalu tiap 2,5 dtk). Combo tiap 3 dtk akurat berturut-turut |
+| Dumping B | 10 dtk, zona hijau 24% lebar slider dan bergerak (gerak sinus 1,9 + 4,3 rad/dtk). Di luar zona 1,5 dtk = teguran (lalu tiap 2,5 dtk). Combo tiap 3 dtk akurat berturut-turut |
 | Transisi | Safety Tip 1,8 dtk sebelum APD, P2H, Loading, Hauling 1, Dumping, Kuis, Hasil. Reboisasi dan Hauling 2 tanpa tip supaya terasa satu perjalanan |
 
 ## Sistem skor

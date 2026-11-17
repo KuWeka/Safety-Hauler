@@ -4,7 +4,7 @@
     {
       "name": "game",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "-w", "game"],
+      "runtimeArgs": ["run", "dev:host", "-w", "game"],
       "port": 5173
     },
     {

@@ -7,13 +7,15 @@ export const LOADING = {
   loadEdge: 0.5,
   /** Bucket berayun bolak-balik antara pit dan ujung kanan. */
   swingFromX: 150,
-  swingToX: 680,
+  swingToX: 690,
   swingY: 520,
   swingSpeedPxPerSec: 520,
-  /** Zona di atas bak HD. */
+  /** Bar kuning di atas bak HD; zona hijau bergerak bolak-balik di dalamnya. */
   zoneCenterX: 530,
+  barHalfWidth: 160,
   greenHalfWidth: 45,
-  edgeHalfWidth: 100,
+  /** Kecepatan gerak zona hijau (radian/detik, gerak sinus). */
+  greenSpeed: 2.2,
   /** Lama animasi tumpah dan kembali ke pit. */
   dumpMs: 350,
   returnMs: 450,

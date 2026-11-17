@@ -13,9 +13,9 @@ export const DUMPING = {
   zoneWidth: 0.24,
   /** Zona hijau bergerak: tengah = 0.5 + a1·sin(t·w1) + a2·sin(t·w2), t dalam detik. */
   zoneA1: 0.22,
-  zoneW1: 1.1,
+  zoneW1: 1.9,
   zoneA2: 0.07,
-  zoneW2: 2.7,
+  zoneW2: 4.3,
   /** Di luar zona terus 1,5 dtk = 1 teguran, lalu tiap 2,5 dtk. */
   warnHoldMs: 1500,
   warnRepeatMs: 2500,

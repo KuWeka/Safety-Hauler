@@ -2,11 +2,10 @@
 
 export type DropResult = 'perfect' | 'edge' | 'miss';
 
-/** Loading: posisi bucket saat tap dibanding zona di atas bak. */
-export function judgeDrop(x: number, zoneCenter: number, greenHalf: number, edgeHalf: number): DropResult {
-  const dist = Math.abs(x - zoneCenter);
-  if (dist <= greenHalf) return 'perfect';
-  if (dist <= edgeHalf) return 'edge';
+/** Loading: posisi bucket saat tap. Zona hijau bergerak di dalam bar kuning. */
+export function judgeDrop(x: number, greenCenter: number, greenHalf: number, barCenter: number, barHalf: number): DropResult {
+  if (Math.abs(x - greenCenter) <= greenHalf) return 'perfect';
+  if (Math.abs(x - barCenter) <= barHalf) return 'edge';
   return 'miss';
 }
 

@@ -6,7 +6,7 @@ import { approach, SustainedTimer } from '../systems/rules';
 import { scoreTracker } from '../systems/scoreTracker';
 import { say } from '../systems/supervisor';
 import { createBar, type Bar } from '../ui/Bar';
-import { floatText, FONT, label } from '../ui/text';
+import { floatText, label } from '../ui/text';
 
 const TRUCK_Y = 950;
 /** Ujung depan truk: titik dunia d tepat berada di sini. */
@@ -15,6 +15,9 @@ const ROAD_LEFT = 120;
 const ROAD_RIGHT = 600;
 const HUD_H = 190;
 const CONTROLS_Y = 1100;
+const SLIDER_LEFT = 90;
+const SLIDER_W = 540;
+const SLIDER_Y = 1195;
 
 type LvState = 'idle' | 'crossing' | 'cleared' | 'violated';
 
@@ -39,8 +42,8 @@ export class HaulingScene extends Phaser.Scene {
   private radioCorrect = 0;
   private paused = false;
   private finished = false;
-  private gasId = -1;
-  private brakeId = -1;
+  private targetKmh = 0;
+  private sliderId = -1;
   private swipe: { id: number; x: number } | null = null;
   private speeding!: SustainedTimer;
   private objects: WorldObject[] = [];
@@ -51,7 +54,9 @@ export class HaulingScene extends Phaser.Scene {
   private hpText!: Phaser.GameObjects.Text;
   private speedText!: Phaser.GameObjects.Text;
   private limitText!: Phaser.GameObjects.Text;
-  private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
+  private throttleFill!: Phaser.GameObjects.Rectangle;
+  private throttleThumb!: Phaser.GameObjects.Arc;
+  private limitTick!: Phaser.GameObjects.Rectangle;
 
   constructor() {
     super('Hauling');
@@ -71,8 +76,8 @@ export class HaulingScene extends Phaser.Scene {
     this.radioCorrect = 0;
     this.paused = false;
     this.finished = false;
-    this.gasId = -1;
-    this.brakeId = -1;
+    this.targetKmh = C.cruiseKmh;
+    this.sliderId = -1;
     this.swipe = null;
     this.speeding = new SustainedTimer(C.speedingHoldMs, C.speedingRepeatMs);
     this.objects = [];
@@ -165,14 +170,28 @@ export class HaulingScene extends Phaser.Scene {
   }
 
   private createControls(): void {
-    this.add.rectangle(0, CONTROLS_Y, this.scale.width, this.scale.height - CONTROLS_Y, 0x1b1f24).setOrigin(0).setDepth(30);
-    const make = (x: number, color: number, text: string, set: (id: number) => void): void => {
-      const btn = this.add.rectangle(x, 1190, 300, 150, color).setStrokeStyle(6, 0xffffff).setDepth(31).setInteractive();
-      this.add.text(x, 1190, text, { fontFamily: FONT, fontSize: '52px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5).setDepth(32);
-      btn.on('pointerdown', (p: Phaser.Input.Pointer) => set(p.id));
+    const { width, height } = this.scale;
+    this.add.rectangle(0, CONTROLS_Y, width, height - CONTROLS_Y, 0x1b1f24).setOrigin(0).setDepth(30);
+    label(this, width / 2, CONTROLS_Y + 30, T.throttle, 26, '#9aa4ae', true).setDepth(31);
+    this.add.rectangle(SLIDER_LEFT, SLIDER_Y, SLIDER_W, 44, 0x2b3138).setOrigin(0, 0.5).setStrokeStyle(4, 0xffffff).setDepth(31);
+    this.throttleFill = this.add.rectangle(SLIDER_LEFT, SLIDER_Y, 0, 36, 0x1e8449).setOrigin(0, 0.5).setDepth(31);
+    this.limitTick = this.add.rectangle(0, SLIDER_Y, 10, 70, 0xd0362a).setDepth(32);
+    this.throttleThumb = this.add.circle(0, SLIDER_Y, 46, 0xffffff).setStrokeStyle(6, 0x1b1f24).setDepth(33);
+    label(this, SLIDER_LEFT - 40, SLIDER_Y, '0', 28, '#ffffff', true).setDepth(31);
+    label(this, SLIDER_LEFT + SLIDER_W + 44, SLIDER_Y, `${C.maxKmh}`, 28, '#ffffff', true).setDepth(31);
+
+    // Seluruh area bawah jadi area sentuh slider; jempol tidak harus pas di tombol bulatnya.
+    const hit = this.add.rectangle(0, CONTROLS_Y, width, height - CONTROLS_Y, 0xffffff, 0.001).setOrigin(0).setDepth(34).setInteractive();
+    const setTarget = (p: Phaser.Input.Pointer): void => {
+      this.targetKmh = Phaser.Math.Clamp((p.x - SLIDER_LEFT) / SLIDER_W, 0, 1) * C.maxKmh;
     };
-    make(180, 0xc0392b, T.brake, (id) => (this.brakeId = id));
-    make(540, 0x1e8449, T.gas, (id) => (this.gasId = id));
+    hit.on('pointerdown', (p: Phaser.Input.Pointer) => {
+      this.sliderId = p.id;
+      setTarget(p);
+    });
+    this.input.on('pointermove', (p: Phaser.Input.Pointer) => {
+      if (p.id === this.sliderId) setTarget(p);
+    });
 
     this.input.on('pointerdown', (p: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
       if (over.length === 0 && p.y < CONTROLS_Y) this.swipe = { id: p.id, x: p.x };
@@ -186,17 +205,20 @@ export class HaulingScene extends Phaser.Scene {
       }
     });
     const release = (p: Phaser.Input.Pointer): void => {
-      if (p.id === this.gasId) this.gasId = -1;
-      if (p.id === this.brakeId) this.brakeId = -1;
+      if (p.id === this.sliderId) this.sliderId = -1;
       if (p.id === this.swipe?.id) this.swipe = null;
     };
     this.input.on('pointerup', release);
     this.input.on('pointerupoutside', release);
 
     // Keyboard untuk playtest di laptop.
-    this.cursors = this.input.keyboard?.createCursorKeys();
+    const nudge = (dk: number): void => {
+      this.targetKmh = Phaser.Math.Clamp(this.targetKmh + dk, 0, C.maxKmh);
+    };
     this.input.keyboard?.on('keydown-LEFT', () => this.changeLane(-1));
     this.input.keyboard?.on('keydown-RIGHT', () => this.changeLane(1));
+    this.input.keyboard?.on('keydown-UP', () => nudge(5));
+    this.input.keyboard?.on('keydown-DOWN', () => nudge(-5));
   }
 
   private changeLane(dir: number): void {
@@ -212,11 +234,8 @@ export class HaulingScene extends Phaser.Scene {
     this.elapsed += delta;
     if (this.paused) return;
 
-    const gas = this.gasId >= 0 || !!this.cursors?.up.isDown;
-    const brake = this.brakeId >= 0 || !!this.cursors?.down.isDown;
-    if (brake) this.kmh = approach(this.kmh, 0, C.brakeKmhPerSec, delta);
-    else if (gas) this.kmh = approach(this.kmh, C.maxKmh, C.gasKmhPerSec, delta);
-    else this.kmh = approach(this.kmh, C.cruiseKmh, C.coastKmhPerSec, delta);
+    const rate = this.targetKmh > this.kmh ? C.gasKmhPerSec : C.brakeKmhPerSec;
+    this.kmh = approach(this.kmh, this.targetKmh, rate, delta);
 
     let nextD = this.d + (this.kmh * C.pxPerKmh * delta) / 1000;
     for (const obj of this.objects) nextD = this.updateObject(obj, nextD, delta);
@@ -312,6 +331,11 @@ export class HaulingScene extends Phaser.Scene {
     this.hpText.setText(`${T.hp} ${Math.round(ratio * 100)}%`);
     this.speedText.setText(T.speed(this.kmh)).setColor(this.kmh > limit + C.speedToleranceKmh ? '#ff6b5a' : '#ffffff');
     this.limitText.setText(T.limit(limit));
+    const toX = (kmh: number): number => SLIDER_LEFT + (kmh / C.maxKmh) * SLIDER_W;
+    this.throttleThumb.x = toX(this.targetKmh);
+    this.throttleFill.setSize(toX(this.kmh) - SLIDER_LEFT, 36);
+    this.throttleFill.setFillStyle(this.kmh > limit + C.speedToleranceKmh ? 0xc0392b : 0x1e8449);
+    this.limitTick.x = toX(limit);
   }
 
   private openRadio(index: number): void {

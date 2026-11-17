@@ -102,7 +102,7 @@ npm run build                 # build game → admin (ke game/dist/admin) → ty
 ```
 
 - `npm run dev:api` menyajikan hasil **build** di `game/dist`. Untuk ngoding game pakai `npm run dev` (Vite), API tetap dari `dev:api`.
-- Dev only: lompat langsung ke tahap lewat URL, misal `http://localhost:5173/?stage=Loading` atau `?stage=Hauling&part=2`. Di laptop: panah kiri/kanan = pindah lajur, atas/bawah = gas/rem, spasi = mundur.
+- Dev only: lompat langsung ke tahap lewat URL, misal `http://localhost:5173/?stage=Loading` atau `?stage=Hauling&part=2`. Di laptop: panah kiri/kanan = pindah lajur, atas/bawah = kecepatan ±5 km/jam, spasi = mundur.
 - Build game mengosongkan `game/dist`, jadi admin harus di-build setelah game (`npm run build` sudah urut).
 - Cloud (hanya Weka yang menjalankan): `npx wrangler login`, `npx wrangler d1 create safety-hauler` (salin `database_id` ke `worker/wrangler.toml`), `npx wrangler d1 migrations apply safety-hauler --remote`, `npx wrangler deploy` (dari folder `worker/`, setelah `npm run build`).
 

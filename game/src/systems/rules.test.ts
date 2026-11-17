@@ -2,11 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { approach, judgeDrop, SustainedTimer } from './rules';
 
 describe('judgeDrop', () => {
-  it('tengah = perfect, pinggir = edge, luar = miss', () => {
-    expect(judgeDrop(530, 530, 45, 100)).toBe('perfect');
-    expect(judgeDrop(575, 530, 45, 100)).toBe('perfect');
-    expect(judgeDrop(470, 530, 45, 100)).toBe('edge');
-    expect(judgeDrop(631, 530, 45, 100)).toBe('miss');
+  it('di zona hijau = perfect, sisa bar = edge, luar bar = miss', () => {
+    expect(judgeDrop(530, 530, 45, 530, 160)).toBe('perfect');
+    expect(judgeDrop(575, 530, 45, 530, 160)).toBe('perfect');
+    expect(judgeDrop(470, 530, 45, 530, 160)).toBe('edge');
+    expect(judgeDrop(691, 530, 45, 530, 160)).toBe('miss');
+  });
+
+  it('zona hijau ikut bergeser', () => {
+    expect(judgeDrop(640, 630, 45, 530, 160)).toBe('perfect');
+    expect(judgeDrop(530, 630, 45, 530, 160)).toBe('edge');
   });
 });
 
