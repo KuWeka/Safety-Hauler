@@ -131,6 +131,18 @@ Ditentukan Claude Code atas permintaan Weka (17 Nov 2026), lalu dibuat lebih sul
 | Dumping B | 10 dtk, zona hijau 16% lebar slider dan bergerak (gerak sinus 1,9 + 4,3 rad/dtk, amplitudo lebih besar). Di luar zona 1 dtk = teguran (lalu tiap 2 dtk). Combo tiap 3 dtk akurat berturut-turut |
 | Transisi | Safety Tip 1,8 dtk sebelum APD, P2H, Loading, Hauling 1, Dumping, Kuis, Hasil. Reboisasi dan Hauling 2 tanpa tip supaya terasa satu perjalanan |
 
+### Keputusan detail Fase 2 (ditentukan Claude Code, 17 Nov 2026)
+
+| Tahap | Keputusan |
+| --- | --- |
+| Registrasi | Form HTML di atas canvas. Divisi: dropdown Arutmin / Kontraktor / Umum / Lainnya (isian bebas). Nama 2–30 huruf. No HP dinormalisasi ke 08xxxxxxxxxx (terima +62 / 62), harus 10–13 digit. Pemain yang sudah tersimpan di HP disambut "Halo lagi" dengan pilihan Lanjut main / Ganti pemain |
+| Kustomisasi | Cowok/cewek (beda warna baju), 3 gaya rambut (pendek, jabrik, panjang), 3 warna kulit. Preview bergoyang pelan (placeholder "berputar") |
+| APD | 4 APD wajib + 1 item jebakan acak (topi biasa atau sandal). Seret item ke badan; tap item yang dipakai untuk melepas; item jebakan menggantikan APD di slot yang sama. Tombol Mulai selalu aktif; kalau kurang/ada jebakan, Pak Bos menghentikan pemain dan menunjuk item bermasalah. Potongan dihitung per item yang pernah ketahuan kurang (tidak dobel kalau Mulai ditekan berkali-kali). Pemain baru bisa lanjut setelah APD lengkap tanpa jebakan |
+| P2H | Tap 4 titik untuk membaca hasil cek, setelah semua dicek muncul "Laporkan kerusakan" lalu tap titik yang rusak. Lapor benar = bonus P2H; lapor salah = tanpa bonus + teguran ringan (tanpa potongan). Tombol "Langsung naik unit" = melewati P2H (−400) |
+| Kuis | 3 soal acak dari bank 20 soal draf (perlu validasi K3), 10 dtk per soal. Jawaban salah / waktu habis menampilkan jawaban benar + penjelasan |
+| Pengawas | Pak Bos tampil dengan 5 ekspresi (marah, kesal, kaget, bangga, jempol) sesuai situasi. Balon 2 dtk tanpa menghentikan game; khusus cek APD memakai dialog yang harus ditutup |
+| Hasil | Skor lokal dari `calculateScore` (skor resmi tetap dihitung server di Fase 3): total, 4 kategori, daftar teguran. Pak Bos memuji kalau total ≥ 7.000. Kartu Operator bisa disimpan sebagai PNG. Peringkat + leaderboard menyusul di Fase 3 |
+
 ## Sistem skor
 
 Skor maksimum ± 10.000. Safety punya porsi terbesar (40%), jadi pemain yang ngebut tapi sering ditegur kalah dari yang pelan tapi patuh. Angka di bawah adalah titik awal dan akan di-tuning saat playtest.
@@ -331,9 +343,9 @@ Urutannya: gameplay jalan dulu pakai kotak-kotak placeholder, baru art masuk bel
 
 **Fase 2 – Alur lengkap**
 
-- [ ] Registrasi, kustomisasi, APD drag & drop, P2H, kuis, layar hasil
-- [ ] Sistem teguran Pengawas + dialog acak
-- [ ] Skor lokal sesuai rumus
+- [x] Registrasi, kustomisasi, APD drag & drop, P2H, kuis, layar hasil
+- [x] Sistem teguran Pengawas + dialog acak
+- [x] Skor lokal sesuai rumus
 
 **Fase 3 – Backend & admin**
 

@@ -10,11 +10,12 @@ export function createButton(
   label: string,
   onTap: () => void,
 ): Phaser.GameObjects.Container {
-  const width = 440;
-  const bg = scene.add.rectangle(0, 0, width, MIN_HEIGHT, 0xf2b705).setStrokeStyle(6, 0x1b1f24);
   const text = scene.add
-    .text(0, 0, label, { fontFamily: 'sans-serif', fontSize: '48px', fontStyle: 'bold', color: '#1b1f24' })
+    .text(0, 0, label, { fontFamily: 'sans-serif', fontSize: '44px', fontStyle: 'bold', color: '#1b1f24' })
     .setOrigin(0.5);
+  // Melebar mengikuti teks, maks 660 px (layar 720).
+  const width = Phaser.Math.Clamp(text.width + 80, 440, 660);
+  const bg = scene.add.rectangle(0, 0, width, MIN_HEIGHT, 0xf2b705).setStrokeStyle(6, 0x1b1f24);
   const button = scene.add.container(x, y, [bg, text]).setSize(width, MIN_HEIGHT);
   button
     .setInteractive({ useHandCursor: true })

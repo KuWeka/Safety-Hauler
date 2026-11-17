@@ -43,10 +43,9 @@ export const FLOW: FlowStep[] = [
 export const RESTART_INDEX = FLOW.findIndex((s) => s.scene === 'Register');
 
 export const UI_TEXT = {
+  gameTitle: 'Safety Hauler',
+  loading: 'Memuat...',
   next: 'Lanjut',
-  playAgain: 'Main Lagi',
-  placeholder: '(placeholder)',
-  safetyMax: (n: number) => `Skor Safety maks: ${n}`,
   tipTitle: 'Safety Tip',
   tapToSkip: 'Tap untuk lanjut',
   supervisorName: 'Pak Bos',

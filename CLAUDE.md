@@ -111,7 +111,7 @@ npm run build                 # build game → admin (ke game/dist/admin) → ty
 - [x] GDD versi awal (`docs/GDD.md`)
 - [x] Fase 0 – Fondasi (repo, Phaser + Vite, Cloudflare Worker + D1). Lokal selesai; remote GitHub dan D1/Worker di cloud belum dibuat.
 - [ ] Fase 1 – Prototype gameplay (placeholder)
-- [ ] Fase 2 – Alur lengkap
+- [x] Fase 2 – Alur lengkap (leaderboard di layar hasil menyusul Fase 3)
 - [ ] Fase 3 – Backend & admin
 - [ ] Fase 4 – Art & audio
 - [ ] Fase 5 – Uji & siap event

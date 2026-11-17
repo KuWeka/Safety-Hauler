@@ -26,6 +26,8 @@ const game = new Phaser.Game({
   },
   // Hauling butuh 2 jari sekaligus (tahan gas + geser lajur).
   input: { activePointers: 2 },
+  // Form registrasi pakai elemen HTML yang ikut di-scale bersama canvas.
+  dom: { createContainer: true },
   // Scene pertama di array yang otomatis jalan.
   scene: [
     BootScene,
