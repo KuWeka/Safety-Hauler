@@ -116,6 +116,21 @@ Antar tahap ada layar transisi 1–2 detik berisi satu "Safety Tip" singkat. Pem
 - Kartu Operator: karakter pemain, nama, divisi, skor, rank. Bisa disimpan sebagai gambar untuk dibagikan.
 - Leaderboard top 10 + posisi pemain sendiri.
 
+### Angka awal gameplay (Fase 1, di-tuning saat playtest)
+
+Ditentukan Claude Code atas permintaan Weka (17 Nov 2026). Semua angka ada di `game/src/data/`.
+
+| Tahap | Angka |
+| --- | --- |
+| Loading | Bucket berayun 520 px/dtk. Zona hijau ±45 px = 1 pass + bonus sempurna; zona kuning ±100 px = setengah pass; di luar = tumpah. Bak penuh di 5 pass. Batas waktu 60 dtk |
+| Hauling | 3 lajur, geser ≥ 60 px untuk pindah lajur. Kecepatan jelajah otomatis 30 km/jam, maks 60. Batas default 40, zona rambu 20. Ngebut = lewat batas +2 km/jam selama 1 dtk (teguran lagi tiap 3 dtk). HP unit 100 dibagi dua bagian |
+| Hauling – rintangan | Lubang −5 HP, batu −10, licin −10 dan debu −5 (kalau di atas 25 km/jam, sekali per zona), LV −25 + teguran (kalau lewat garis stop di atas 8 km/jam saat LV menyeberang) |
+| Hauling – panjang | Bagian 1: 9 rintangan + 1 radio (± 35–50 dtk). Bagian 2: 3 rintangan (± 15–20 dtk) |
+| Reboisasi | 9 petak (3×3), tiap petak 2 tap (topsoil lalu bibit), 20 dtk |
+| Dumping A | Mundur 210 px/dtk, zona stop 70 px sebelum berm |
+| Dumping B | 10 dtk, zona hijau 24% lebar slider dan bergerak. Di luar zona 1,5 dtk = teguran (lalu tiap 2,5 dtk). Combo tiap 3 dtk akurat berturut-turut |
+| Transisi | Safety Tip 1,8 dtk sebelum APD, P2H, Loading, Hauling 1, Dumping, Kuis, Hasil. Reboisasi dan Hauling 2 tanpa tip supaya terasa satu perjalanan |
+
 ## Sistem skor
 
 Skor maksimum ± 10.000. Safety punya porsi terbesar (40%), jadi pemain yang ngebut tapi sering ditegur kalah dari yang pelan tapi patuh. Angka di bawah adalah titik awal dan akan di-tuning saat playtest.
@@ -237,6 +252,8 @@ Kuota gratis Workers 100.000 request/hari, D1 5 juta baris dibaca dan 100.000 ba
 
 Leaderboard tidak punya tabel sendiri. Datanya diambil lewat query: run valid per pemain (pertama atau terbaik sesuai config), urut total tertinggi lalu waktu tercepat.
 
+Nilai awal config: `max_runs_per_player` = 2, `ranked_run` = best, `event_open` = true. Bisa diubah admin saat event.
+
 **Endpoint API**
 
 | Method & path | Fungsi |
@@ -305,11 +322,11 @@ Urutannya: gameplay jalan dulu pakai kotak-kotak placeholder, baru art masuk bel
 
 **Fase 1 – Prototype gameplay (placeholder)**
 
-- [ ] Scene manager + transisi antar tahap
-- [ ] Minigame Loading (timing bucket)
-- [ ] Hauling (lajur, gas/rem, rintangan, HP bar, rambu kecepatan)
-- [ ] Event Reboisasi
-- [ ] Dumping (mundur + slider zona hijau)
+- [x] Scene manager + transisi antar tahap
+- [x] Minigame Loading (timing bucket)
+- [x] Hauling (lajur, gas/rem, rintangan, HP bar, rambu kecepatan)
+- [x] Event Reboisasi
+- [x] Dumping (mundur + slider zona hijau)
 - [ ] Playtest pertama: apakah tiap minigame paham tanpa dijelasin?
 
 **Fase 2 – Alur lengkap**

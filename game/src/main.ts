@@ -11,9 +11,10 @@ import { QuizScene } from './scenes/QuizScene';
 import { ReboisasiScene } from './scenes/ReboisasiScene';
 import { RegisterScene } from './scenes/RegisterScene';
 import { ResultScene } from './scenes/ResultScene';
+import { TipScene } from './scenes/TipScene';
 
 // Portrait 9:16. Resolusi 2x dari 360x640 biar teks tajam di HP layar padat.
-new Phaser.Game({
+const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',
   width: 720,
@@ -23,6 +24,8 @@ new Phaser.Game({
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
+  // Hauling butuh 2 jari sekaligus (tahan gas + geser lajur).
+  input: { activePointers: 2 },
   // Scene pertama di array yang otomatis jalan.
   scene: [
     BootScene,
@@ -37,5 +40,9 @@ new Phaser.Game({
     DumpingScene,
     QuizScene,
     ResultScene,
+    TipScene,
   ],
 });
+
+// Dev only: akses dari console untuk debug/playtest.
+if (import.meta.env.DEV) Object.assign(window, { game });

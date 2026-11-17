@@ -1,38 +1,23 @@
 import Phaser from 'phaser';
-import { RESTART_STAGE, STAGES, UI_TEXT, type StageKey } from '../data/stages';
+import { FLOW, UI_TEXT, type SceneKey } from '../data/stages';
+import { currentIndex, currentStep, nextStep } from '../systems/flow';
 import { createButton } from '../ui/Button';
+import { label } from '../ui/text';
 
-// shortcut: semua tahap pakai layar generik ini; ganti per scene saat tahapnya dikerjakan (Fase 1–2).
+// shortcut: tahap yang belum dikerjakan pakai layar generik ini; diganti per scene di Fase 2.
 export abstract class PlaceholderScene extends Phaser.Scene {
-  constructor(private readonly stageKey: StageKey) {
-    super(stageKey);
+  constructor(key: SceneKey) {
+    super(key);
   }
 
   create(): void {
     const { width, height } = this.scale;
-    const index = STAGES.findIndex((s) => s.key === this.stageKey);
-    const stage = STAGES[index]!;
-    const next = STAGES[index + 1]?.key ?? RESTART_STAGE;
-
+    const index = currentIndex();
     this.add.rectangle(0, 0, width, height, 0x2b3138).setOrigin(0);
-    this.add
-      .text(width / 2, height * 0.12, `${index + 1}/${STAGES.length}`, { fontFamily: 'sans-serif', fontSize: '36px', color: '#9aa4ae' })
-      .setOrigin(0.5);
-    this.add
-      .text(width / 2, height * 0.4, stage.label, {
-        fontFamily: 'sans-serif',
-        fontSize: '64px',
-        fontStyle: 'bold',
-        color: '#ffffff',
-        align: 'center',
-        wordWrap: { width: width - 80 },
-      })
-      .setOrigin(0.5);
-    this.add
-      .text(width / 2, height * 0.4 + 80, UI_TEXT.placeholder, { fontFamily: 'sans-serif', fontSize: '32px', color: '#9aa4ae' })
-      .setOrigin(0.5);
-
-    const label = STAGES[index + 1] ? UI_TEXT.next : UI_TEXT.playAgain;
-    createButton(this, width / 2, height * 0.82, label, () => this.scene.start(next));
+    label(this, width / 2, height * 0.12, `${index + 1}/${FLOW.length}`, 36, '#9aa4ae');
+    label(this, width / 2, height * 0.4, currentStep().label, 64, '#ffffff', true);
+    label(this, width / 2, height * 0.4 + 80, UI_TEXT.placeholder, 32, '#9aa4ae');
+    const last = index === FLOW.length - 1;
+    createButton(this, width / 2, height * 0.82, last ? UI_TEXT.playAgain : UI_TEXT.next, () => nextStep(this));
   }
 }
