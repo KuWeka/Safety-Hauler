@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { FLOW } from '../data/stages';
 import { nextStep, startStep } from '../systems/flow';
+import { flushPending } from '../systems/sync';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -8,6 +9,9 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Hasil yang belum terkirim (sinyal putus / tab ketutup) dikirim ulang di latar belakang.
+    void flushPending();
+    window.addEventListener('online', () => void flushPending());
     // scene.start ditunda satu frame: kalau dipanggil di dalam create(), scene tujuan tidak pernah update.
     this.time.delayedCall(0, () => {
       // Dev only: lompat langsung ke tahap, misal ?stage=Hauling&part=2

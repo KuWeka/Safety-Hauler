@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { Avatar } from '@shared/types';
 import { CUSTOMIZE_TEXT as T, SKIN_COLORS } from '../data/customize';
 import { nextStep } from '../systems/flow';
+import { session } from '../systems/session';
 import { loadPlayer, savePlayer } from '../systems/storage';
 import { createButton } from '../ui/Button';
 import { Character } from '../ui/Character';
@@ -43,7 +44,11 @@ export class CustomizeScene extends Phaser.Scene {
 
     createButton(this, width / 2, 1170, T.next, () => {
       const player = loadPlayer();
-      if (player) savePlayer({ ...player, avatar: this.avatar });
+      if (player) {
+        savePlayer({ ...player, avatar: this.avatar });
+        // Mulai run di latar belakang; ApdScene menunggu hasilnya kalau belum selesai.
+        session.start(player.phone).catch(() => undefined);
+      }
       nextStep(this);
     });
   }

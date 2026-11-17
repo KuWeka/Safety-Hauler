@@ -1,10 +1,14 @@
 import Phaser from 'phaser';
+import type { RegisterPlayerResponse } from '@shared/api';
 import type { Player } from '@shared/types';
-import { normalizeName, normalizePhone } from '@shared/validation';
+import { normalizeDivision, normalizeName, normalizePhone } from '@shared/validation';
 import { DIVISION_OTHER, DIVISIONS, REGISTER_TEXT as T } from '../data/register';
+import { errorMessage, NET_TEXT } from '../data/net';
+import { api, ApiFailure } from '../systems/api';
 import { nextStep } from '../systems/flow';
 import { clearPlayer, loadPlayer, savePlayer } from '../systems/storage';
 import { createButton } from '../ui/Button';
+import { showLeaderboard } from '../ui/LeaderboardPanel';
 import { label } from '../ui/text';
 
 // Form pakai elemen HTML (DOM) di atas canvas: input teks + keyboard HP jauh lebih wajar daripada digambar di canvas.
@@ -19,6 +23,7 @@ const FORM_CSS = `
 .reg .err{min-height:40px;color:#ff8a7a;font-size:28px;font-weight:bold;margin-top:18px}
 .reg button{width:100%;height:112px;margin-top:10px;font-size:46px;font-weight:bold;border:6px solid #1b1f24;
   border-radius:16px;background:#f2b705;color:#1b1f24}
+.reg button:disabled{opacity:.6}
 `;
 
 const formHtml = (): string => `
@@ -39,6 +44,9 @@ const formHtml = (): string => `
   <button type="submit">${T.submit}</button>
 </form>`;
 
+/** Kode error server yang ditampilkan ke pemain; sisanya pesan umum. */
+const messageFor = (e: unknown): string => errorMessage(e instanceof ApiFailure ? e.code : 'server_error');
+
 export class RegisterScene extends Phaser.Scene {
   constructor() {
     super('Register');
@@ -55,17 +63,58 @@ export class RegisterScene extends Phaser.Scene {
     else this.showForm();
   }
 
+  /** Daftar/ambil pemain di server lalu cek event dan jatah main. Server yang memutuskan, bukan HP. */
+  private async checkIn(local: Player, input: { name: string; division: string }): Promise<RegisterPlayerResponse> {
+    const res = await api.register({ phone: local.phone, name: input.name, division: input.division, avatar: local.avatar, consent: true });
+    // Pakai data server (nama/divisi pertama kali daftar); avatar pilihan di HP ini tetap dipakai.
+    savePlayer({ ...res.player, avatar: local.avatar });
+    return res;
+  }
+
+  private proceed(res: RegisterPlayerResponse): void {
+    if (!res.eventOpen) return this.showBlocked(NET_TEXT.eventClosed, false);
+    if (res.runsLeft <= 0) return this.showBlocked(NET_TEXT.blockedQuota, true);
+    nextStep(this);
+  }
+
   private showWelcomeBack(player: Player): void {
     const { width, height } = this.scale;
-    const ui = [
-      label(this, width / 2, height * 0.4, T.welcomeBack(player.name), 52, '#ffffff', true),
-      label(this, width / 2, height * 0.46, player.division, 34, '#9aa4ae'),
+    const objs: Phaser.GameObjects.GameObject[] = [
+      label(this, width / 2, height * 0.38, T.welcomeBack(player.name), 52, '#ffffff', true),
+      label(this, width / 2, height * 0.44, player.division, 34, '#9aa4ae'),
     ];
-    const go = createButton(this, width / 2, height * 0.62, T.continue, () => nextStep(this));
-    const change = createButton(this, width / 2, height * 0.74, T.change, () => {
+    const status = label(this, width / 2, height * 0.52, '', 30, '#ff8a7a', true, 600);
+    let busy = false;
+    const go = createButton(this, width / 2, height * 0.64, T.continue, () => {
+      if (busy) return;
+      busy = true;
+      status.setText(NET_TEXT.checking).setColor('#9aa4ae');
+      this.checkIn(player, { name: player.name, division: player.division }).then(
+        (res) => this.proceed(res),
+        (e: unknown) => {
+          busy = false;
+          status.setText(messageFor(e)).setColor('#ff8a7a');
+        },
+      );
+    });
+    const change = createButton(this, width / 2, height * 0.76, T.change, () => {
       clearPlayer();
-      [...ui, go, change].forEach((o) => o.destroy());
+      [...objs, status, go, change].forEach((o) => o.destroy());
       this.showForm();
+    });
+  }
+
+  private showBlocked(message: string, canViewLeaderboard: boolean): void {
+    const { width, height } = this.scale;
+    this.children.removeAll(true);
+    this.add.rectangle(0, 0, width, height, 0x2b3138).setOrigin(0);
+    label(this, width / 2, height * 0.33, message, 40, '#ffffff', true, 600);
+    if (canViewLeaderboard) {
+      createButton(this, width / 2, height * 0.52, NET_TEXT.viewLeaderboard, () => showLeaderboard(this, loadPlayer()?.phone));
+    }
+    createButton(this, width / 2, height * 0.66, T.change, () => {
+      clearPlayer();
+      this.scene.restart();
     });
   }
 
@@ -75,33 +124,47 @@ export class RegisterScene extends Phaser.Scene {
     const select = form.querySelector('select')!;
     const other = form.querySelector<HTMLInputElement>('.other')!;
     const err = form.querySelector<HTMLDivElement>('.err')!;
+    const submit = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
     select.addEventListener('change', () => {
       other.style.display = select.value === DIVISION_OTHER ? 'block' : 'none';
     });
 
     form.addEventListener('submit', (e) => {
       e.preventDefault();
+      if (submit.disabled) return;
       const data = new FormData(form);
       const name = normalizeName(String(data.get('name') ?? ''));
       const picked = String(data.get('division') ?? '');
-      const division = (picked === DIVISION_OTHER ? String(data.get('other') ?? '') : picked).trim();
+      const division = normalizeDivision(picked === DIVISION_OTHER ? String(data.get('other') ?? '') : picked);
       const phone = normalizePhone(String(data.get('phone') ?? ''));
       const error = !name ? T.errName : !division ? T.errDivision : !phone ? T.errPhone : !data.get('consent') ? T.errConsent : '';
       err.textContent = error;
-      if (error || !name || !phone) return;
+      if (error || !name || !division || !phone) return;
 
+      submit.disabled = true;
+      err.style.color = '#9aa4ae';
+      err.textContent = NET_TEXT.registering;
       const prev = loadPlayer();
-      savePlayer({
+      const local: Player = {
         phone,
         name,
         division,
-        avatar: prev?.avatar ?? { gender: 'male', hair: 0, skin: 0 },
+        avatar: prev?.phone === phone ? prev.avatar : { gender: 'male', hair: 0, skin: 0 },
         consent: true,
-        createdAt: prev?.phone === phone ? prev.createdAt : Date.now(),
-        playCount: prev?.phone === phone ? prev.playCount : 0,
-      });
-      (document.activeElement as HTMLElement | null)?.blur(); // tutup keyboard HP
-      nextStep(this);
+        createdAt: Date.now(),
+        playCount: 0,
+      };
+      this.checkIn(local, { name, division }).then(
+        (res) => {
+          (document.activeElement as HTMLElement | null)?.blur(); // tutup keyboard HP
+          this.proceed(res);
+        },
+        (e2: unknown) => {
+          submit.disabled = false;
+          err.style.color = '';
+          err.textContent = messageFor(e2);
+        },
+      );
     });
   }
 }

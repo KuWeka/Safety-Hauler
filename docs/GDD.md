@@ -143,6 +143,20 @@ Ditentukan Claude Code atas permintaan Weka (17 Nov 2026), lalu dibuat lebih sul
 | Pengawas | Pak Bos tampil dengan 5 ekspresi (marah, kesal, kaget, bangga, jempol) sesuai situasi. Balon 2 dtk tanpa menghentikan game; khusus cek APD memakai dialog yang harus ditutup |
 | Hasil | Skor lokal dari `calculateScore` (skor resmi tetap dihitung server di Fase 3): total, 4 kategori, daftar teguran. Pak Bos memuji kalau total ≥ 7.000. Kartu Operator bisa disimpan sebagai PNG. Peringkat + leaderboard menyusul di Fase 3 |
 
+### Keputusan detail Fase 3 (ditentukan Claude Code, 17 Nov 2026)
+
+| Bagian | Keputusan |
+| --- | --- |
+| Registrasi | Wajib online (server yang memutuskan jatah main dan status event). Pemain lama tidak ditimpa datanya; nama dan divisi pertama kali daftar yang dipakai. Sinyal dibutuhkan hanya di awal; selama main boleh putus |
+| Run | Dimulai di server saat masuk tahap APD (butuh sinyal). Satu run aktif per no HP: run baru menghapus run lama yang tak pernah selesai. Jatah main terpakai saat run selesai dikirim, bukan saat mulai. Run baru ditunda sampai hasil tertunda terkirim |
+| Anti-curang | Server hanya menerima data mentah tahap, memeriksa bentuknya, menghitung ulang skor, lalu cek kewajaran (`shared/validation.ts`): total waktu server ≥ 90 dtk, jumlah durasi tahap tidak melebihi waktu server, durasi minimal per tahap, jumlah event masuk akal. Gagal cek = `flagged` (tidak masuk leaderboard sampai admin menyetujui). Tidak ada batas atas waktu karena hasil bisa dikirim lama setelah selesai (offline) |
+| Leaderboard | Run valid terbaik (atau pertama, sesuai config) tiap pemain, urut skor lalu waktu main tercepat. Total waktu = jumlah durasi tahap. Skor dan waktu sama berbagi peringkat. Tidak menampilkan no HP. Di-cache per versi data supaya polling TV murah |
+| Reset leaderboard | Dua langkah (token 60 dtk). Tidak menghapus data: hanya run yang selesai setelah waktu reset yang masuk leaderboard |
+| Admin | Password dari Worker secret `ADMIN_PASSWORD`, sesi 12 jam di cookie HttpOnly + SameSite=Strict, login dibatasi 10x/menit/IP. Mengganti password mematikan semua sesi. Export CSV (UTF-8 dengan BOM agar terbuka di Excel); sel berawalan `=` `+` `-` `@` dinetralkan |
+| Rate limit | 300 permintaan POST/menit/IP, longgar karena banyak HP di WiFi stand terlihat satu IP |
+| Offline | Hasil disimpan di IndexedDB lalu dikirim ulang tiap 5 dtk dan saat sinyal kembali. Service worker (`game/public/sw.js`) menyimpan asset game; API dan /admin tidak di-cache |
+| Zona waktu | "Hari ini" di Mode TV dan tampilan tanggal admin memakai WITA (UTC+8) |
+
 ## Sistem skor
 
 Skor maksimum ± 10.000. Safety punya porsi terbesar (40%), jadi pemain yang ngebut tapi sering ditegur kalah dari yang pelan tapi patuh. Angka di bawah adalah titik awal dan akan di-tuning saat playtest.
@@ -351,10 +365,10 @@ Urutannya: gameplay jalan dulu pakai kotak-kotak placeholder, baru art masuk bel
 
 **Fase 3 – Backend & admin**
 
-- [ ] API Worker + D1: registrasi, run token, hitung ulang skor + cek kewajaran
-- [ ] Leaderboard realtime di HP
-- [ ] Dashboard admin: Mode TV + Mode Kelola + export
-- [ ] Offline mode (PWA + antrean kirim hasil)
+- [x] API Worker + D1: registrasi, run token, hitung ulang skor + cek kewajaran
+- [x] Leaderboard di HP (panel di layar hasil)
+- [x] Dashboard admin: Mode TV + Mode Kelola + export
+- [x] Offline mode (PWA + antrean kirim hasil)
 
 **Fase 4 – Art & audio**
 

@@ -97,12 +97,14 @@ npm run dev:api               # API Worker + D1 lokal di http://localhost:8787
 npm run dev                   # game (Vite, hot reload) di http://localhost:5173, /api di-proxy ke :8787
 npm run dev:host              # sama, tapi bisa dibuka dari HP di WiFi yang sama
 npm test                      # test scoring & validasi (Vitest)
+npm run smoke                 # smoke test API (butuh dev:api jalan; menulis data uji ke D1 LOKAL)
 npm run typecheck             # typecheck shared/
 npm run build                 # build game → admin (ke game/dist/admin) → typecheck worker
 ```
 
 - `npm run dev:api` menyajikan hasil **build** di `game/dist`. Untuk ngoding game pakai `npm run dev` (Vite), API tetap dari `dev:api`.
 - Dev only: lompat langsung ke tahap lewat URL, misal `http://localhost:5173/?stage=Loading` atau `?stage=Hauling&part=2`. Di laptop: panah kiri/kanan = pindah lajur, atas/bawah = kecepatan ±5 km/jam, spasi = mundur.
+- Password admin lokal: salin `worker/.dev.vars.example` ke `worker/.dev.vars` (tidak masuk git). Produksi: `npx wrangler secret put ADMIN_PASSWORD`. Dashboard di `/admin/`.
 - Build game mengosongkan `game/dist`, jadi admin harus di-build setelah game (`npm run build` sudah urut).
 - Cloud (hanya Weka yang menjalankan): `npx wrangler login`, `npx wrangler d1 create safety-hauler` (salin `database_id` ke `worker/wrangler.toml`), `npx wrangler d1 migrations apply safety-hauler --remote`, `npx wrangler deploy` (dari folder `worker/`, setelah `npm run build`).
 
@@ -112,7 +114,7 @@ npm run build                 # build game → admin (ke game/dist/admin) → ty
 - [x] Fase 0 – Fondasi (repo, Phaser + Vite, Cloudflare Worker + D1). Lokal selesai; remote GitHub dan D1/Worker di cloud belum dibuat.
 - [ ] Fase 1 – Prototype gameplay (placeholder)
 - [x] Fase 2 – Alur lengkap (leaderboard di layar hasil menyusul Fase 3)
-- [ ] Fase 3 – Backend & admin
+- [x] Fase 3 – Backend & admin (kode selesai dan dites lokal; D1 + deploy ke Cloudflare belum dilakukan)
 - [ ] Fase 4 – Art & audio
 - [ ] Fase 5 – Uji & siap event
 

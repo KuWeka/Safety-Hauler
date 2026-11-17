@@ -1,6 +1,7 @@
 import type Phaser from 'phaser';
 import { FLOW, RESTART_INDEX, type FlowStep } from '../data/stages';
 import { scoreTracker } from './scoreTracker';
+import { session } from './session';
 
 let index = 0;
 
@@ -17,7 +18,10 @@ export function startStep(scene: Phaser.Scene, i: number): void {
 /** Pindah ke tahap berikutnya; lewat layar Safety Tip kalau tahapnya minta. */
 export function nextStep(scene: Phaser.Scene): void {
   const i = index + 1 < FLOW.length ? index + 1 : RESTART_INDEX;
-  if (i === RESTART_INDEX) scoreTracker.reset();
+  if (i === RESTART_INDEX) {
+    scoreTracker.reset();
+    session.reset();
+  }
   if (FLOW[i]!.tip) {
     index = i;
     scene.scene.start('Tip');

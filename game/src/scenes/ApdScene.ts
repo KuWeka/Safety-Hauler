@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
 import type { ApdItem } from '@shared/types';
 import { APD_TEXT as T, ITEMS, REQUIRED, TRAPS, type WearItem, type WearSlot } from '../data/apd';
-import { nextStep } from '../systems/flow';
+import { nextStep, startStep } from '../systems/flow';
+import { ensureRun } from '../systems/session';
+import { RESTART_INDEX } from '../data/stages';
 import { scoreTracker } from '../systems/scoreTracker';
 import { loadPlayer } from '../systems/storage';
 import { sayBlocking } from '../systems/supervisor';
@@ -41,6 +43,7 @@ export class ApdScene extends Phaser.Scene {
   private trapEver = false;
   private elapsed = 0;
   private done = false;
+  private ready = false;
 
   constructor() {
     super('Apd');
@@ -53,6 +56,7 @@ export class ApdScene extends Phaser.Scene {
     this.trapEver = false;
     this.elapsed = 0;
     this.done = false;
+    this.ready = false;
 
     const { width, height } = this.scale;
     this.add.rectangle(0, 0, width, height, 0x2b3138).setOrigin(0);
@@ -70,10 +74,17 @@ export class ApdScene extends Phaser.Scene {
 
     this.input.dragDistanceThreshold = 16;
     createButton(this, width / 2, 1190, T.start, () => this.check());
+
+    // Server mencatat waktu mulai run; durasi tahap baru dihitung setelah run siap.
+    ensureRun(
+      this,
+      () => (this.ready = true),
+      () => startStep(this, RESTART_INDEX),
+    );
   }
 
   override update(_time: number, delta: number): void {
-    if (!this.done) this.elapsed += delta;
+    if (this.ready && !this.done) this.elapsed += delta;
   }
 
   private makeIcon(item: WearItem, x: number, y: number): TrayIcon {

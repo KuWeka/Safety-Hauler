@@ -6,7 +6,8 @@
     "dev": "wrangler dev",
     "types": "wrangler types",
     "build": "wrangler types && tsc --noEmit",
-    "db:migrate:local": "wrangler d1 migrations apply safety-hauler --local"
+    "db:migrate:local": "wrangler d1 migrations apply safety-hauler --local",
+    "smoke": "node scripts/smoke.mjs"
   },
   "devDependencies": {
     "wrangler": "4.163.0"

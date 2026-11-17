@@ -46,5 +46,10 @@ const game = new Phaser.Game({
   ],
 });
 
+// Offline: service worker hanya di build produksi (saat dev, Vite memakai modul yang tidak cocok di-cache).
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => void navigator.serviceWorker.register('/sw.js').catch(() => undefined));
+}
+
 // Dev only: akses dari console untuk debug/playtest.
 if (import.meta.env.DEV) Object.assign(window, { game });

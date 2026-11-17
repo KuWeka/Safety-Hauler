@@ -2,6 +2,12 @@ import Phaser from 'phaser';
 
 const MIN_HEIGHT = 112; // = 56 CSS px di layar 360 px lebar (game 720 px)
 
+export interface ButtonOptions {
+  /** Lebar minimum (default 440). Dipakai untuk dua tombol sebaris. */
+  minWidth?: number;
+  fontSize?: number;
+}
+
 /** Tombol placeholder: kotak bulat + teks. Nanti tinggal ganti sprite. */
 export function createButton(
   scene: Phaser.Scene,
@@ -9,13 +15,15 @@ export function createButton(
   y: number,
   label: string,
   onTap: () => void,
+  opts: ButtonOptions = {},
 ): Phaser.GameObjects.Container {
   const text = scene.add
-    .text(0, 0, label, { fontFamily: 'sans-serif', fontSize: '44px', fontStyle: 'bold', color: '#1b1f24' })
+    .text(0, 0, label, { fontFamily: 'sans-serif', fontSize: `${opts.fontSize ?? 44}px`, fontStyle: 'bold', color: '#1b1f24' })
     .setOrigin(0.5);
   // Melebar mengikuti teks, maks 660 px (layar 720).
-  const width = Phaser.Math.Clamp(text.width + 80, 440, 660);
+  const width = Phaser.Math.Clamp(text.width + 60, opts.minWidth ?? 440, 660);
   const bg = scene.add.rectangle(0, 0, width, MIN_HEIGHT, 0xf2b705).setStrokeStyle(6, 0x1b1f24);
+  // Urutan: bg harus di bawah teks (teks dibuat lebih dulu, jadi diangkat).
   const button = scene.add.container(x, y, [bg, text]).setSize(width, MIN_HEIGHT);
   button
     .setInteractive({ useHandCursor: true })
