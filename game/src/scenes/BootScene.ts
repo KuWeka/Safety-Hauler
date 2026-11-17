@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { FLOW } from '../data/stages';
 import { nextStep, startStep } from '../systems/flow';
+import { ART } from '../systems/art';
 import { flushPending } from '../systems/sync';
 
 export class BootScene extends Phaser.Scene {
@@ -8,7 +9,14 @@ export class BootScene extends Phaser.Scene {
     super('Boot');
   }
 
+  preload(): void {
+    // Atlas dimuat di Boot (bukan Preload) supaya tetap ada saat lompat tahap lewat ?stage= di dev.
+    this.load.atlas(ART, '/art/atlas.png', '/art/atlas.json');
+  }
+
   create(): void {
+    // Sprite pixel art harus tajam (tanpa interpolasi). Teks tetap halus, jadi filter hanya di atlas ini.
+    this.textures.get(ART).setFilter(Phaser.Textures.FilterMode.NEAREST);
     // Hasil yang belum terkirim (sinyal putus / tab ketutup) dikirim ulang di latar belakang.
     void flushPending();
     window.addEventListener('online', () => void flushPending());

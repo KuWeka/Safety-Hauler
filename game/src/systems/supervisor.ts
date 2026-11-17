@@ -3,6 +3,7 @@ import { DIALOG, EXPRESSION, PRAISE, SUPERVISOR_SHOW_MS, type Expression, type S
 import { UI_TEXT } from '../data/stages';
 import { createButton } from '../ui/Button';
 import { FONT } from '../ui/text';
+import { sprite } from './art';
 
 // Pengawas "Pak Bos": wajah placeholder dengan 5 ekspresi (diganti sprite di Fase 4).
 const active = new WeakMap<Phaser.Scene, Phaser.GameObjects.Container>();
@@ -12,31 +13,9 @@ const pick = (situation: Situation): string => {
   return lines[Math.floor(Math.random() * lines.length)]!;
 };
 
-/** Gambar wajah Pak Bos (±130 px) dengan ekspresi tertentu. */
+/** Wajah Pak Bos (potret pixel art 5 ekspresi). Tinggi ±190 px layar. */
 export function drawBoss(scene: Phaser.Scene, x: number, y: number, expr: Expression): Phaser.GameObjects.Container {
-  const dark = 0x1b1f24;
-  const face = expr === 'marah' ? 0xe08a6a : 0xd9a47a;
-  const c = scene.add.container(x, y, [
-    scene.add.circle(0, 8, 56, face).setStrokeStyle(4, dark),
-    scene.add.ellipse(0, -34, 132, 70, 0xffffff).setStrokeStyle(4, dark), // helm putih pengawas
-    scene.add.rectangle(0, -10, 150, 12, 0xe6e6e6).setStrokeStyle(3, dark),
-    scene.add.circle(-20, 10, 6, dark),
-    scene.add.circle(20, 10, 6, dark),
-    scene.add.ellipse(0, 36, 64, 16, 0x3b2a20), // kumis
-  ]);
-  const g = scene.add.graphics().lineStyle(6, dark);
-  const brow = { marah: [8, -8], kesal: [0, 0], kaget: [-6, -6], bangga: [-3, -3], jempol: [-3, -3] }[expr];
-  g.lineBetween(-32, -2 + brow[0]!, -10, -2 - brow[0]!);
-  g.lineBetween(10, -2 - brow[0]!, 32, -2 + brow[0]!);
-  if (expr === 'kaget') g.fillStyle(0x7a1f1a).fillCircle(0, 52, 10);
-  else if (expr === 'marah') g.fillStyle(0x7a1f1a).fillRect(-20, 48, 40, 8);
-  else if (expr === 'kesal') g.lineBetween(-12, 52, 12, 52);
-  else g.beginPath().arc(0, 40, 18, Phaser.Math.DegToRad(20), Phaser.Math.DegToRad(160)).strokePath();
-  c.add(g);
-  if (expr === 'jempol') {
-    c.add([scene.add.rectangle(70, 40, 30, 34, 0xd9a47a).setStrokeStyle(3, dark), scene.add.rectangle(70, 14, 12, 26, 0xd9a47a).setStrokeStyle(3, dark)]);
-  }
-  return c;
+  return scene.add.container(x, y, [sprite(scene, 0, 0, `boss_${expr}`, 1.4)]);
 }
 
 function balloon(scene: Phaser.Scene, situation: Situation, extra: string | undefined, width: number) {

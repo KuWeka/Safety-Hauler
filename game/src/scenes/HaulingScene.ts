@@ -6,6 +6,7 @@ import { approach, SustainedTimer } from '../systems/rules';
 import { scoreTracker } from '../systems/scoreTracker';
 import { say } from '../systems/supervisor';
 import { createBar, type Bar } from '../ui/Bar';
+import { sprite } from '../systems/art';
 import { floatText, label } from '../ui/text';
 
 const TRUCK_Y = 950;
@@ -25,7 +26,7 @@ interface WorldObject {
   event: CourseEvent;
   view: Phaser.GameObjects.Container;
   resolved: boolean;
-  lv?: { state: LvState; t: number; car: Phaser.GameObjects.Rectangle };
+  lv?: { state: LvState; t: number; car: Phaser.GameObjects.Image };
 }
 
 export class HaulingScene extends Phaser.Scene {
@@ -99,11 +100,7 @@ export class HaulingScene extends Phaser.Scene {
 
     for (const event of this.course.events) this.objects.push(this.buildObject(event));
 
-    this.truck = this.add.container(C.lanes[this.lane]!, TRUCK_Y, [
-      this.add.rectangle(0, 0, 120, 180, 0xf2b705).setStrokeStyle(5, 0x1b1f24),
-      this.add.rectangle(0, -60, 100, 44, 0x2b3138),
-      this.add.rectangle(0, 30, 96, 90, 0x5a5f66).setStrokeStyle(3, 0x1b1f24),
-    ]).setDepth(10);
+    this.truck = this.add.container(C.lanes[this.lane]!, TRUCK_Y, [sprite(this, 0, 0, 'hd_truck_0')]).setDepth(10);
 
     this.fog = this.add.rectangle(ROAD_LEFT - 60, HUD_H, ROAD_RIGHT - ROAD_LEFT + 120, C.fogHeight, 0xd8c8a8, 0).setOrigin(0).setDepth(20);
 
@@ -118,10 +115,10 @@ export class HaulingScene extends Phaser.Scene {
     const roadW = ROAD_RIGHT - ROAD_LEFT;
     switch (event.type) {
       case 'hole':
-        view.add(this.add.ellipse(C.lanes[event.lane]!, 0, 120, 70, 0x1e1a17).setStrokeStyle(4, 0x5b4a3a));
+        view.add(sprite(this, C.lanes[event.lane]!, 0, 'hole'));
         break;
       case 'rock':
-        view.add(this.add.polygon(C.lanes[event.lane]!, 0, [0, 40, 25, 0, 70, -5, 95, 30, 80, 70, 15, 75], 0x8d8d8d).setStrokeStyle(4, 0x3b3b3b));
+        view.add(sprite(this, C.lanes[event.lane]!, 0, 'rock'));
         break;
       case 'limit':
         view.add(this.add.circle(665, 0, 42, 0xffffff).setStrokeStyle(10, 0xd0362a));
@@ -145,7 +142,7 @@ export class HaulingScene extends Phaser.Scene {
           label(this, 0, 60, T.lvWarning, 22, '#ffffff', true),
         ]);
         view.add(sign);
-        const car = this.add.rectangle(-120, -100, 150, 80, 0xf4f4f4).setStrokeStyle(5, 0x2ecc71);
+        const car = sprite(this, -120, -100, 'lv_2');
         view.add(car);
         obj.lv = { state: 'idle', t: 0, car };
         break;
