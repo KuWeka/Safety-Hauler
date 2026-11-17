@@ -6,14 +6,12 @@ import { scoreTracker } from '../systems/scoreTracker';
 import { say } from '../systems/supervisor';
 import { createBar, type Bar } from '../ui/Bar';
 import { createButton } from '../ui/Button';
+import { ART, ART_SCALE, sprite } from '../systems/art';
 import { floatText, label } from '../ui/text';
 
 type State = 'swing' | 'busy' | 'done';
 
 const BAK_X = 530;
-const BAK_TOP = 705;
-const BAK_W = 260;
-const BAK_H = 110;
 
 export class LoadingScene extends Phaser.Scene {
   private state: State = 'swing';
@@ -26,7 +24,6 @@ export class LoadingScene extends Phaser.Scene {
   private coal!: Phaser.GameObjects.Rectangle;
   private arm!: Phaser.GameObjects.Graphics;
   private green!: Phaser.GameObjects.Rectangle;
-  private bakFill!: Phaser.GameObjects.Rectangle;
   private loadBar!: Bar;
   private loadText!: Phaser.GameObjects.Text;
   private timeText!: Phaser.GameObjects.Text;
@@ -44,39 +41,32 @@ export class LoadingScene extends Phaser.Scene {
     this.elapsed = 0;
 
     const { width, height } = this.scale;
-    this.add.rectangle(0, 0, width, height, 0x9cc7e0).setOrigin(0); // langit
-    this.add.rectangle(0, 940, width, height - 940, 0x6b5a48).setOrigin(0); // tanah
+    // Lantai tambang tampak atas: tanah, area galian (pit) di kiri, jalan di bawah truk.
+    this.add.tileSprite(0, 0, width, height, ART, 'tile_dirt').setOrigin(0).setTileScale(ART_SCALE);
+    this.add.tileSprite(20, 760, 300, 260, ART, 'tile_pit').setOrigin(0).setTileScale(ART_SCALE);
+    this.add.tileSprite(BAK_X - 150, 380, 300, 900, ART, 'tile_road').setOrigin(0).setTileScale(ART_SCALE);
 
     // HUD
-    this.add.rectangle(0, 0, width, 250, 0x1b1f24, 0.85).setOrigin(0);
-    label(this, width / 2, 50, T.title, 44, '#ffffff', true);
-    this.loadBar = createBar(this, 60, 125, 600, 44, 0x2ecc71);
-    this.loadText = label(this, width / 2, 125, '', 30, '#ffffff', true);
-    this.timeText = label(this, width / 2, 195, '', 34, '#f2b705', true);
-    label(this, width / 2, 330, T.hint, 36, '#1b1f24', true);
+    this.add.rectangle(0, 0, width, 250, 0x1b1f24, 0.9).setOrigin(0).setDepth(30);
+    label(this, width / 2, 50, T.title, 44, '#ffffff', true).setDepth(31);
+    this.loadBar = createBar(this, 60, 125, 600, 44, 0x2ecc71, 31);
+    this.loadText = label(this, width / 2, 125, '', 30, '#ffffff', true).setDepth(32);
+    this.timeText = label(this, width / 2, 195, '', 34, '#f2b705', true).setDepth(31);
+    label(this, width / 2, 310, T.hint, 36, '#f4f4f4', true).setStroke('#14181d', 8);
 
-    // Zona di atas bak
-    this.add.rectangle(C.zoneCenterX, 610, C.barHalfWidth * 2, 26, 0xf2b705).setStrokeStyle(3, 0x1b1f24);
-    this.green = this.add.rectangle(C.zoneCenterX, 610, C.greenHalfWidth * 2, 26, 0x2ecc71);
-    this.add.line(0, 0, C.swingFromX, C.swingY, C.swingToX, C.swingY, 0x1b1f24, 0.25).setOrigin(0);
+    // Zona di atas bak: bar kuning, zona hijau bergerak di dalamnya
+    this.add.rectangle(C.zoneCenterX, 610, C.barHalfWidth * 2, 26, 0xf2b705).setStrokeStyle(4, 0x14181d).setDepth(5);
+    this.green = this.add.rectangle(C.zoneCenterX, 610, C.greenHalfWidth * 2, 26, 0x4fa24f).setStrokeStyle(2, 0x2c6e3b).setDepth(6);
 
-    // Pit + excavator (placeholder)
-    this.add.rectangle(40, 900, 240, 100, 0x3a2e24).setOrigin(0);
-    this.add.triangle(150, 900, 0, 60, 80, 0, 160, 60, 0x111111);
-    this.add.rectangle(110, 820, 150, 110, 0xf2b705).setStrokeStyle(5, 0x1b1f24);
-    this.add.rectangle(110, 890, 190, 34, 0x333333);
-    this.arm = this.add.graphics();
-
-    // HD truck (placeholder)
-    this.add.rectangle(BAK_X, 880, 320, 120, 0xf2b705).setStrokeStyle(5, 0x1b1f24);
-    this.add.rectangle(BAK_X, BAK_TOP + BAK_H / 2, BAK_W, BAK_H, 0x5a5f66).setStrokeStyle(5, 0x1b1f24);
-    this.bakFill = this.add.rectangle(BAK_X, BAK_TOP + BAK_H - 3, BAK_W - 12, 0, 0x111111).setOrigin(0.5, 1);
-    for (const wx of [420, 640]) this.add.circle(wx, 950, 42, 0x222222).setStrokeStyle(6, 0x555555);
+    // Excavator (pangkal saja; lengan digambar dinamis) dan HD truck
+    sprite(this, 175, 700, 'excavator_base', 2.4);
+    sprite(this, BAK_X, 860, 'hd_truck_0', 3.4);
+    this.arm = this.add.graphics().setDepth(8);
 
     // Bucket
-    const bucketBody = this.add.rectangle(0, 0, 90, 70, 0x3d4247).setStrokeStyle(5, 0x1b1f24);
-    this.coal = this.add.rectangle(0, -20, 72, 28, 0x111111);
-    this.bucket = this.add.container(C.swingFromX, C.swingY, [bucketBody, this.coal]);
+    const bucketBody = sprite(this, 0, 0, 'bucket', 2);
+    this.coal = this.add.rectangle(0, -14, 70, 22, 0x1e1b1b);
+    this.bucket = this.add.container(C.swingFromX, C.swingY, [bucketBody, this.coal]).setDepth(10);
 
     this.input.on('pointerdown', (_p: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
       if (this.state === 'swing' && over.length === 0) this.dump();
@@ -102,7 +92,8 @@ export class LoadingScene extends Phaser.Scene {
       if (x <= C.swingFromX) [x, this.dir] = [C.swingFromX, 1];
       this.bucket.x = x;
     }
-    this.arm.clear().lineStyle(22, 0xd9a400).lineBetween(130, 790, this.bucket.x, this.bucket.y + 10);
+    // Lengan: garis tebal berwarna palet (outline + kuning) dari pangkal boom ke bucket.
+    this.arm.clear().lineStyle(30, 0x14181d).lineBetween(255, 640, this.bucket.x, this.bucket.y).lineStyle(20, 0xf2b705).lineBetween(255, 640, this.bucket.x, this.bucket.y);
     this.refreshHud();
   }
 
@@ -115,7 +106,7 @@ export class LoadingScene extends Phaser.Scene {
     const chunk = this.add.rectangle(this.bucket.x, this.bucket.y + 20, 72, 28, 0x111111);
     this.tweens.add({
       targets: chunk,
-      y: hit ? BAK_TOP : 1000,
+      y: hit ? 780 : 1000,
       alpha: hit ? 1 : 0.2,
       duration: C.dumpMs,
       ease: 'Quad.In',
@@ -172,7 +163,6 @@ export class LoadingScene extends Phaser.Scene {
       // Jebakan edukatif: bak sudah penuh tapi tombol tambah tetap ada.
       createButton(this, width / 2, 1060, T.addMore, () => {
         this.overloadCount++;
-        this.bakFill.setSize(BAK_W - 12, BAK_H - 6 + 22 * Math.min(this.overloadCount, 3));
         say(this, 'overload');
       });
     }
@@ -187,6 +177,5 @@ export class LoadingScene extends Phaser.Scene {
     this.loadBar.set(shown / C.targetPasses);
     this.loadText.setText(T.load(shown, C.targetPasses));
     this.timeText.setText(T.time(this.elapsed / 1000));
-    if (this.overloadCount === 0) this.bakFill.setSize(BAK_W - 12, (BAK_H - 6) * (shown / C.targetPasses));
   }
 }

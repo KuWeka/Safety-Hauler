@@ -6,7 +6,7 @@ import { approach, SustainedTimer } from '../systems/rules';
 import { scoreTracker } from '../systems/scoreTracker';
 import { say } from '../systems/supervisor';
 import { createBar, type Bar } from '../ui/Bar';
-import { sprite } from '../systems/art';
+import { ART, ART_SCALE, sprite } from '../systems/art';
 import { floatText, label } from '../ui/text';
 
 const TRUCK_Y = 950;
@@ -55,6 +55,8 @@ export class HaulingScene extends Phaser.Scene {
   private hpText!: Phaser.GameObjects.Text;
   private speedText!: Phaser.GameObjects.Text;
   private limitText!: Phaser.GameObjects.Text;
+  private ground!: Phaser.GameObjects.TileSprite;
+  private road!: Phaser.GameObjects.TileSprite;
   private throttleFill!: Phaser.GameObjects.Rectangle;
   private throttleThumb!: Phaser.GameObjects.Arc;
   private limitTick!: Phaser.GameObjects.Rectangle;
@@ -87,8 +89,9 @@ export class HaulingScene extends Phaser.Scene {
 
   create(): void {
     const { width, height } = this.scale;
-    this.add.rectangle(0, 0, width, height, 0x8a7158).setOrigin(0);
-    this.add.rectangle(ROAD_LEFT, 0, ROAD_RIGHT - ROAD_LEFT, height, 0x4b4f54).setOrigin(0);
+    // Tanah dan jalan hauling: tile pixel art yang bergulir mengikuti jarak tempuh.
+    this.ground = this.add.tileSprite(0, 0, width, height, ART, 'tile_dirt').setOrigin(0).setTileScale(ART_SCALE);
+    this.road = this.add.tileSprite(ROAD_LEFT, 0, ROAD_RIGHT - ROAD_LEFT, height, ART, 'tile_road').setOrigin(0).setTileScale(ART_SCALE);
 
     // Marka lajur + patok jalan yang ikut bergulir (memberi kesan bergerak).
     for (const x of [280, 440]) {
@@ -121,7 +124,7 @@ export class HaulingScene extends Phaser.Scene {
         view.add(sprite(this, C.lanes[event.lane]!, 0, 'rock'));
         break;
       case 'limit':
-        view.add(this.add.circle(665, 0, 42, 0xffffff).setStrokeStyle(10, 0xd0362a));
+        view.add(sprite(this, 665, 0, 'ui_sign_speed', 4));
         view.add(label(this, 665, 0, T.limit(event.kmh), 34, '#111111', true));
         break;
       case 'slippery':
@@ -159,7 +162,7 @@ export class HaulingScene extends Phaser.Scene {
     this.hpBar = createBar(this, 40, 90, 440, 40, 0x2ecc71, 31);
     this.hpText = label(this, 260, 90, '', 24, '#ffffff', true).setDepth(31);
     this.speedText = label(this, 260, 150, '', 44, '#ffffff', true).setDepth(31);
-    this.add.circle(625, 100, 62, 0xffffff).setStrokeStyle(12, 0xd0362a).setDepth(31);
+    sprite(this, 625, 100, 'ui_sign_speed', 5).setDepth(31);
     this.limitText = label(this, 625, 100, '', 48, '#111111', true).setDepth(32);
 
     const hint = label(this, 360, 260, T.hint, 30, '#ffffff', true).setDepth(25);
@@ -309,6 +312,9 @@ export class HaulingScene extends Phaser.Scene {
   }
 
   private layout(): void {
+    // Tile bergulir turun seiring truk maju (tilePosition dalam piksel tekstur, jadi dibagi skala).
+    this.ground.tilePositionY = -this.d / ART_SCALE;
+    this.road.tilePositionY = -this.d / ART_SCALE;
     for (const s of this.scenery) {
       s.view.y = ((s.offset + this.d) % s.spacing) - 100;
     }

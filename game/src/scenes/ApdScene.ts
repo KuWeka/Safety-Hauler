@@ -9,6 +9,7 @@ import { loadPlayer } from '../systems/storage';
 import { sayBlocking } from '../systems/supervisor';
 import { createButton } from '../ui/Button';
 import { Character } from '../ui/Character';
+import { sprite } from '../systems/art';
 import { floatText, label } from '../ui/text';
 
 const ICON_COLORS: Record<WearItem, number> = {
@@ -64,7 +65,7 @@ export class ApdScene extends Phaser.Scene {
     label(this, width / 2, 125, T.hint, 28, '#ffffff', false, 640);
     const avatar = loadPlayer()?.avatar ?? { gender: 'male', hair: 0, skin: 0 };
     this.add.ellipse(width / 2, 690, 260, 44, 0x000000, 0.25);
-    this.character = new Character(this, width / 2, 565, avatar).setScale(0.85);
+    this.character = new Character(this, width / 2, 490, avatar).setScale(1.5);
     this.reason = label(this, width / 2, 760, '', 30, '#7CFC9A', true, 640);
     this.add.rectangle(width / 2, 940, width - 40, 300, 0x1b1f24, 0.6).setStrokeStyle(3, 0x9aa4ae, 0.4);
 
@@ -89,7 +90,7 @@ export class ApdScene extends Phaser.Scene {
 
   private makeIcon(item: WearItem, x: number, y: number): TrayIcon {
     const info = ITEMS[item];
-    const box = this.add.rectangle(0, -10, 180, 96, ICON_COLORS[item]).setStrokeStyle(5, 0xffffff);
+    const box = sprite(this, 0, -14, `icon_${item}`);
     const text = label(this, 0, 58, info.label, 24, '#ffffff', true, 200);
     const check = label(this, 70, -45, '✔', 40, '#7CFC9A', true).setVisible(false);
     const view = this.add.container(x, y, [box, text, check]).setSize(200, 150).setInteractive({ draggable: true, useHandCursor: true });

@@ -185,8 +185,8 @@ export class ResultScene extends Phaser.Scene {
     panel.add(this.add.rectangle(360, 185, 600, 90, 0x1b1f24));
     panel.add(label(this, 360, 185, T.cardTitle, 40, '#f2b705', true));
     if (player) {
-      panel.add(this.add.ellipse(360, 690, 220, 36, 0x000000, 0.15));
-      panel.add(new Character(this, 360, 600, player.avatar).setScale(0.62).setWorn(REQUIRED));
+      panel.add(this.add.ellipse(360, 715, 220, 36, 0x000000, 0.15));
+      panel.add(new Character(this, 360, 590, player.avatar).setScale(1.0).setWorn(REQUIRED));
     }
     panel.add(label(this, 360, 760, player?.name ?? '-', 48, '#1b1f24', true, 560));
     panel.add(label(this, 360, 815, player?.division ?? '', 30, '#555555', true, 560));

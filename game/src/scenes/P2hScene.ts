@@ -3,6 +3,7 @@ import { P2H_POINTS, P2H_TEXT as T } from '../data/p2h';
 import { nextStep } from '../systems/flow';
 import { scoreTracker } from '../systems/scoreTracker';
 import { say } from '../systems/supervisor';
+import { ART, ART_SCALE, sprite } from '../systems/art';
 import { createButton } from '../ui/Button';
 import { label } from '../ui/text';
 
@@ -31,7 +32,7 @@ export class P2hScene extends Phaser.Scene {
     this.reportBtn = undefined;
 
     const { width, height } = this.scale;
-    this.add.rectangle(0, 0, width, height, 0x8a7158).setOrigin(0);
+    this.add.tileSprite(0, 0, width, height, ART, 'tile_dirt').setOrigin(0).setTileScale(ART_SCALE);
     this.add.rectangle(0, 0, width, 200, 0x1b1f24, 0.85).setOrigin(0);
     label(this, width / 2, 55, T.title, 48, '#f2b705', true);
     label(this, width / 2, 135, T.hint, 28, '#ffffff', false, 640);
@@ -57,14 +58,8 @@ export class P2hScene extends Phaser.Scene {
   }
 
   private drawExcavator(): void {
-    const dark = 0x1b1f24;
-    this.add.rectangle(360, 800, 460, 110, 0x3d4247).setStrokeStyle(6, dark); // track
-    for (let x = 160; x <= 560; x += 50) this.add.rectangle(x, 800, 30, 90, 0x2b2f33);
-    this.add.rectangle(380, 640, 360, 190, 0xf2b705).setStrokeStyle(6, dark); // body
-    this.add.rectangle(300, 500, 170, 150, 0xf2b705).setStrokeStyle(6, dark); // kabin
-    this.add.rectangle(300, 495, 130, 100, 0x88c8ff, 0.8).setStrokeStyle(4, dark);
-    this.add.line(0, 0, 470, 560, 640, 330, dark).setOrigin(0).setLineWidth(30); // boom
-    this.add.rectangle(640, 380, 70, 120, 0x3d4247).setStrokeStyle(5, dark); // bucket
+    // Excavator pixel art tampak depan; titik cek (data/p2h.ts) ditaruh di atas bagian yang diperiksa.
+    sprite(this, 360, 600, 'excavator_4', 6);
   }
 
   private tapSpot(i: number): void {

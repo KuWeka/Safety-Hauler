@@ -32,6 +32,8 @@ JOBS = [
     ("hd_truck", m0.hd_truck, 128, 128, 9.5, 1.6, 55, 8),
     ("excavator", mx.excavator, 160, 160, 12.5, 1.8, 55, 8),
     ("lv", mx.lv, 96, 96, 7.0, 1.0, 55, 8),
+    ("excavator_base", lambda: mx.excavator(False), 160, 160, 12.5, 1.8, 55, 2),
+    ("bucket", mx.bucket, 64, 48, 3.8, 0.5, 55, 1),
     ("hole", mx.hole, 64, 40, 4.5, 0.0, 55, 0),
     ("rock", mx.rock, 64, 56, 3.8, 0.4, 55, 0),
     ("puddle", mx.puddle, 72, 48, 4.8, 0.0, 55, 0),
@@ -54,5 +56,5 @@ for name, build, w, h, scale, tz, elev, dirs in JOBS:
     if dirs == 8:
         common.render_directions(root, name, out_dir)
     else:
-        single(root, name, FRONT if dirs == 1 else 0)
+        single(root, name, {0: 0, 1: FRONT, 2: 90}[dirs])
 print("RENDER DONE", out_dir)

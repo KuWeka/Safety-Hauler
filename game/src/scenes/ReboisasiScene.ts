@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { REBOISASI as C, REBOISASI_TEXT as T } from '../data/reboisasi';
 import { nextStep } from '../systems/flow';
 import { scoreTracker } from '../systems/scoreTracker';
+import { ART, ART_SCALE, sprite } from '../systems/art';
 import { createBar, type Bar } from '../ui/Bar';
 import { createButton } from '../ui/Button';
 import { label } from '../ui/text';
@@ -28,7 +29,7 @@ export class ReboisasiScene extends Phaser.Scene {
     this.elapsed = 0;
 
     const { width, height } = this.scale;
-    this.add.rectangle(0, 0, width, height, 0x6f8f5a).setOrigin(0);
+    this.add.tileSprite(0, 0, width, height, ART, 'tile_grass').setOrigin(0).setTileScale(ART_SCALE);
     label(this, width / 2, 70, T.title, 48, '#ffffff', true);
     this.timeBar = createBar(this, 60, 150, 600, 40, 0x2ecc71);
     this.timeBar.set(1);
@@ -41,13 +42,10 @@ export class ReboisasiScene extends Phaser.Scene {
     this.states.forEach((_, i) => {
       const x = x0 + (i % C.cols) * (C.tileSize + C.gap);
       const y = y0 + Math.floor(i / C.cols) * (C.tileSize + C.gap);
-      const tile = this.add.rectangle(x, y, C.tileSize, C.tileSize, TILE_COLORS[0]).setStrokeStyle(5, 0x3b2f22).setInteractive();
-      const seedling = this.add.container(x, y, [
-        this.add.rectangle(0, 20, 10, 60, 0x2e7d32),
-        this.add.ellipse(-22, -5, 50, 28, 0x43a047),
-        this.add.ellipse(22, -15, 50, 28, 0x66bb6a),
-      ]).setVisible(false);
-      tile.on('pointerdown', () => this.tapTile(i, tile, seedling));
+      const tile = this.add.tileSprite(x, y, C.tileSize, C.tileSize, ART, 'tile_dirt').setTileScale(ART_SCALE).setInteractive();
+      // Tanah dan bibit: sprite pixel art, muncul bertahap (topsoil lalu bibit yang tumbuh).
+      const seedling = sprite(this, x, y, 'soil', 1.7).setVisible(false);
+      tile.on('pointerdown', () => this.tapTile(i, seedling));
     });
 
     this.showIntro();
@@ -66,15 +64,16 @@ export class ReboisasiScene extends Phaser.Scene {
     );
   }
 
-  private tapTile(i: number, tile: Phaser.GameObjects.Rectangle, seedling: Phaser.GameObjects.Container): void {
+  private tapTile(i: number, plant: Phaser.GameObjects.Image): void {
     const state = this.states[i]!;
     if (!this.running || state === 2) return;
     const next = (state + 1) as TileState;
     this.states[i] = next;
-    tile.setFillStyle(TILE_COLORS[next]);
+    if (next === 1) plant.setFrame('soil').setVisible(true);
     if (next === 2) {
-      seedling.setVisible(true).setScale(0.2);
-      this.tweens.add({ targets: seedling, scale: 1, duration: 250, ease: 'Back.Out' });
+      plant.setFrame('seedling1').setScale(0.4);
+      this.tweens.add({ targets: plant, scale: 1.7, duration: 250, ease: 'Back.Out' });
+      this.time.delayedCall(700, () => plant.setFrame('seedling2'));
     }
     if (this.states.every((s) => s === 2)) this.finish(true);
   }

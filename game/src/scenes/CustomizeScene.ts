@@ -25,7 +25,7 @@ export class CustomizeScene extends Phaser.Scene {
     const { width, height } = this.scale;
     this.add.rectangle(0, 0, width, height, 0x2b3138).setOrigin(0);
     label(this, width / 2, 70, T.title, 48, '#f2b705', true);
-    this.add.ellipse(width / 2, 590, 300, 50, 0x000000, 0.25);
+    this.add.ellipse(width / 2, 690, 300, 50, 0x000000, 0.25);
     this.redraw();
 
     const row = (y: number, title: string): void => void label(this, 70, y, title, 30, '#ffffff', true).setOrigin(0, 0.5);
@@ -70,8 +70,8 @@ export class CustomizeScene extends Phaser.Scene {
 
   private redraw(): void {
     this.preview?.destroy();
-    this.preview = new Character(this, this.scale.width / 2, 470, this.avatar).setScale(0.8);
+    this.preview = new Character(this, this.scale.width / 2, 480, this.avatar).setScale(1.7);
     // "Berputar pelan" versi placeholder: goyang kiri-kanan.
-    this.tweens.add({ targets: this.preview, scaleX: -0.8, duration: 1800, yoyo: true, repeat: -1, ease: 'Sine.InOut' });
+    this.tweens.add({ targets: this.preview, scaleX: -1.7, duration: 1800, yoyo: true, repeat: -1, ease: 'Sine.InOut' });
   }
 }

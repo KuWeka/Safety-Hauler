@@ -7,6 +7,7 @@ import { scoreTracker } from '../systems/scoreTracker';
 import { say } from '../systems/supervisor';
 import { createBar, type Bar } from '../ui/Bar';
 import { createButton } from '../ui/Button';
+import { ART, ART_SCALE, sprite } from '../systems/art';
 import { floatText, FONT, label } from '../ui/text';
 
 type Phase = 'reverse' | 'wait' | 'slider' | 'done';
@@ -34,9 +35,9 @@ export class DumpingScene extends Phaser.Scene {
   private truck!: Phaser.GameObjects.Container;
   private bak!: Phaser.GameObjects.Rectangle;
   private spotterText!: Phaser.GameObjects.Text;
-  private spotterBubble!: Phaser.GameObjects.Rectangle;
-  private zone!: Phaser.GameObjects.Rectangle;
-  private thumb!: Phaser.GameObjects.Arc;
+  private spotterBubble!: Phaser.GameObjects.NineSlice;
+  private zone!: Phaser.GameObjects.Image;
+  private thumb!: Phaser.GameObjects.NineSlice;
   private loadBar!: Bar;
 
   constructor() {
@@ -60,7 +61,7 @@ export class DumpingScene extends Phaser.Scene {
     this.comboTimer = new SustainedTimer(C.comboMs, C.comboMs);
 
     const { width, height } = this.scale;
-    this.add.rectangle(0, 0, width, height, 0x8a7158).setOrigin(0);
+    this.add.tileSprite(0, 0, width, height, ART, 'tile_dirt').setOrigin(0).setTileScale(ART_SCALE);
     this.createPartA();
   }
 
@@ -69,27 +70,25 @@ export class DumpingScene extends Phaser.Scene {
   private createPartA(): void {
     const { width } = this.scale;
     this.partA = this.add.container(0, 0);
-    this.partA.add(this.add.rectangle(0, C.bermY, width, 70, 0x5b4030).setOrigin(0).setStrokeStyle(4, 0x2b1d14));
+    this.partA.add(this.add.tileSprite(0, C.bermY, width, 70, ART, 'tile_berm').setOrigin(0).setTileScale(ART_SCALE));
     this.partA.add(label(this, width / 2, C.bermY + 35, T.berm, 28, '#e8d8c0', true));
-    this.partA.add(this.add.rectangle(0, C.bermY + 70, width, 200, 0x2b2420).setOrigin(0)); // lubang dumping
+    this.partA.add(this.add.tileSprite(0, C.bermY + 70, width, 210, ART, 'tile_pit').setOrigin(0).setTileScale(ART_SCALE)); // lubang dumping
     this.partA.add(label(this, width / 2, 60, T.titleA, 42, '#ffffff', true));
     this.partA.add(label(this, width / 2, 140, T.hintA, 30, '#ffffff', true, 640));
 
     // Spotter (placeholder) di kanan dekat titik stop.
-    this.partA.add(this.add.rectangle(640, C.stopZoneTop + 10, 50, 110, 0xff8c1a).setStrokeStyle(4, 0x1b1f24));
-    this.partA.add(this.add.circle(640, C.stopZoneTop - 65, 26, 0xf2c99a).setStrokeStyle(4, 0x1b1f24));
-    this.spotterBubble = this.add.rectangle(560, C.stopZoneTop - 180, 240, 90, 0x1e8449).setStrokeStyle(5, 0xffffff);
-    this.spotterText = label(this, 560, C.stopZoneTop - 180, T.spotterGo, 38, '#ffffff', true);
+    this.partA.add(sprite(this, 640, C.stopZoneTop - 20, 'spotter_4', 2.2));
+    this.spotterBubble = this.add.nineslice(520, C.stopZoneTop - 190, ART, 'ui_button_green', 130, 50, 6, 6, 6, 6).setScale(ART_SCALE);
+    this.spotterText = label(this, 520, C.stopZoneTop - 192, T.spotterGo, 38, '#ffffff', true);
     this.partA.add([this.spotterBubble, this.spotterText]);
 
-    this.truck = this.add.container(320, this.rearY, [
-      this.add.rectangle(0, 0, 150, 240, 0xf2b705).setOrigin(0.5, 1).setStrokeStyle(5, 0x1b1f24),
-      this.add.rectangle(0, -215, 120, 40, 0x2b3138),
-    ]);
-    this.bak = this.add.rectangle(0, -10, 130, 150, 0x5a5f66).setOrigin(0.5, 1).setStrokeStyle(4, 0x1b1f24);
+    // Truk tampak belakang (maju = ke atas layar); titik (0,0) kontainer = ujung belakang truk.
+    this.truck = this.add.container(320, this.rearY, [sprite(this, 0, 0, 'hd_truck_0', 3).setOrigin(0.5, 0.78)]);
+    // Tumpukan batubara di bak: tingginya menyusut saat dumping.
+    this.bak = this.add.rectangle(0, -78, 96, 150, 0x1e1b1b).setOrigin(0.5, 0.5);
     this.truck.add(this.bak);
 
-    const btn = this.add.rectangle(width / 2, 1190, 460, 140, 0xc0392b).setStrokeStyle(6, 0xffffff).setInteractive();
+    const btn = this.add.nineslice(width / 2, 1190, ART, 'ui_button_red', 230, 70, 6, 6, 6, 6).setScale(ART_SCALE).setInteractive();
     const btnText = this.add.text(width / 2, 1190, T.reverse, { fontFamily: FONT, fontSize: '52px', fontStyle: 'bold', color: '#ffffff' }).setOrigin(0.5);
     this.partA.add([btn, btnText]);
     btn.on('pointerdown', () => {
@@ -131,7 +130,7 @@ export class DumpingScene extends Phaser.Scene {
     }
     this.truck.y = this.rearY;
     const stop = this.inStopZone() || this.rearY > C.stopZoneBottom;
-    this.spotterBubble.setFillStyle(stop ? 0xc0392b : 0x1e8449);
+    this.spotterBubble.setFrame(stop ? 'ui_button_red' : 'ui_button_green');
     this.spotterText.setText(stop ? T.spotterStop : T.spotterGo);
   }
 
@@ -149,9 +148,9 @@ export class DumpingScene extends Phaser.Scene {
     this.loadBar = createBar(this, 230, 220, 420, 36, 0x333333);
     this.loadBar.set(1);
 
-    this.add.rectangle(TRACK_LEFT, TRACK_Y, TRACK_W, 50, 0x1b1f24).setOrigin(0, 0.5).setStrokeStyle(4, 0xffffff);
-    this.zone = this.add.rectangle(0, TRACK_Y, C.zoneWidth * TRACK_W, 50, 0x2ecc71);
-    this.thumb = this.add.circle(0, TRACK_Y, 44, 0xffffff).setStrokeStyle(6, 0x1b1f24);
+    this.add.nineslice(TRACK_LEFT, TRACK_Y, ART, 'ui_panel', TRACK_W / ART_SCALE, 28, 6, 6, 6, 6).setOrigin(0, 0.5).setScale(ART_SCALE);
+    this.zone = this.add.image(0, TRACK_Y, ART, 'ui_bar_green').setDisplaySize(C.zoneWidth * TRACK_W, 44);
+    this.thumb = this.add.nineslice(0, TRACK_Y, ART, 'ui_button', 22, 22, 6, 6, 6, 6).setScale(ART_SCALE);
     label(this, TRACK_LEFT + 60, TRACK_Y + 80, T.slow, 30, '#ffffff', true);
     label(this, TRACK_LEFT + TRACK_W - 60, TRACK_Y + 80, T.fast, 30, '#ffffff', true);
 
@@ -196,9 +195,9 @@ export class DumpingScene extends Phaser.Scene {
     const progress = this.sliderElapsed / C.sliderMs;
     this.zone.x = TRACK_LEFT + center * TRACK_W;
     this.thumb.x = TRACK_LEFT + this.value * TRACK_W;
-    this.thumb.setFillStyle(inZone ? 0x7CFC9A : 0xff8a7a);
+    this.thumb.setTint(inZone ? 0xa8ffb8 : 0xffa090);
     this.loadBar.set(1 - progress);
-    this.bak.setAngle(-35 * Math.min(1, progress * 3));
+    this.bak.setSize(96, Math.max(2, 150 * (1 - progress)));
     if (this.sliderElapsed >= C.sliderMs) this.finish();
   }
 

@@ -8,7 +8,7 @@ def spotter():
     return character(skin="skin_b", helmet="white", flag=True)
 
 
-def excavator():
+def excavator(boom=True):
     r = new_root("excavator")
     for x in (-1.5, 1.5):
         box(r, f"track_{x}", (x, 0, 0.55), (1.0, 4.6, 1.1), "gray_dark")
@@ -19,10 +19,21 @@ def excavator():
     box(r, "cab", (-0.9, 0.9, 2.9), (1.4, 1.5, 1.4), "yellow")
     box(r, "cab_glass", (-0.9, 1.66, 3.0), (1.1, 0.06, 0.9), "sky")
     box(r, "cab_roof", (-0.9, 0.9, 3.7), (1.6, 1.7, 0.18), "yellow_shadow")
-    box(r, "boom", (0.5, 3.0, 3.6), (0.6, 4.2, 0.6), "yellow", rot=(0.5, 0, 0))
-    box(r, "stick", (0.5, 5.4, 3.7), (0.45, 2.6, 0.45), "yellow_shadow", rot=(-0.6, 0, 0))
-    box(r, "bucket", (0.5, 6.5, 2.6), (1.5, 1.1, 1.0), "gray_dark")
-    box(r, "bucket_teeth", (0.5, 7.0, 2.2), (1.5, 0.2, 0.25), "gray_light")
+    if boom:
+        box(r, "boom", (0.5, 3.0, 3.6), (0.6, 4.2, 0.6), "yellow", rot=(0.5, 0, 0))
+        box(r, "stick", (0.5, 5.4, 3.7), (0.45, 2.6, 0.45), "yellow_shadow", rot=(-0.6, 0, 0))
+        box(r, "bucket", (0.5, 6.5, 2.6), (1.5, 1.1, 1.0), "gray_dark")
+        box(r, "bucket_teeth", (0.5, 7.0, 2.2), (1.5, 0.2, 0.25), "gray_light")
+    else:  # pangkal saja: lengan dan bucket digerakkan di game
+        box(r, "boom_base", (0.5, 1.8, 3.4), (0.7, 1.4, 0.7), "yellow")
+    return r
+
+
+def bucket():
+    r = new_root("bucket")
+    box(r, "shell", (0, 0, 0.5), (2.2, 1.6, 1.0), "gray_dark")
+    box(r, "coal", (0, 0, 1.05), (1.8, 1.2, 0.2), "coal")
+    box(r, "teeth", (0, 0.85, 0.2), (2.2, 0.2, 0.3), "gray_light")
     return r
 
 
